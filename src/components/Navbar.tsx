@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -10,7 +9,7 @@ const Navbar = () => {
   const imgRef = useRef<HTMLImageElement>(null);
 
   // Use a different image for the logo to avoid previous issues
-  const logoImagePath = "/lovable-uploads/image-3";
+  const logoImagePath = "http://chiefmustacheofficer.com/images/ChiefMustacheOfficer_Logo_Horizontal.png";
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -18,34 +17,23 @@ const Navbar = () => {
 
   // Preload the logo image
   useEffect(() => {
-    // Reset states when image source changes
     setLogoLoaded(false);
     setLogoError(false);
-    
-    // Create new image for preloading
+
     const img = new Image();
     img.src = logoImagePath;
-    
-    // Handle successful load
+
     img.onload = () => {
       setLogoLoaded(true);
       console.log("Logo image loaded successfully:", logoImagePath);
     };
-    
-    // Handle loading error
+
     img.onerror = () => {
       console.error("Failed to load logo image:", logoImagePath);
       setLogoError(true);
     };
-    
-    // Check if image is already cached
-    if (imgRef.current && imgRef.current.complete) {
-      setLogoLoaded(true);
-      console.log("Logo image was already cached");
-    }
-    
+
     return () => {
-      // Clean up event listeners
       img.onload = null;
       img.onerror = null;
     };
@@ -66,7 +54,7 @@ const Navbar = () => {
               onError={(e) => {
                 console.error("Logo image failed to load, trying fallback");
                 const target = e.target as HTMLImageElement;
-                target.src = "/lovable-uploads/image-6";
+                target.src = "/lovable-uploads/image-6.png"; // Add the correct file extension
               }}
             />
           </Link>
@@ -92,6 +80,7 @@ const Navbar = () => {
             className="md:hidden text-navy hover:text-mustache"
             onClick={toggleMenu}
             aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>

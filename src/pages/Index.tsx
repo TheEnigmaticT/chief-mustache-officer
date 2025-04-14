@@ -89,15 +89,15 @@ const Index = () => {
       setIsLoading(true);
       try {
         const content = await loadFeaturedContent();
-        
-        // If we have valid content, use it; otherwise use mock data
+        console.log('Loaded content:', content); // Log the response
+
         if (content.featuredBlogPosts && content.featuredBlogPosts.length > 0) {
           setFeaturedBlogPosts(content.featuredBlogPosts);
         } else {
           setFeaturedBlogPosts(mockBlogPosts);
           console.log('Using mock blog posts due to loading failure');
         }
-        
+
         if (content.featuredVideos && content.featuredVideos.length > 0) {
           setFeaturedVideos(content.featuredVideos);
         } else {
