@@ -50,66 +50,50 @@ export const getCorrectImagePath = async (path: string): Promise<string> => {
   
   debugLog('Trying path:', path);
   
-  // Check if URL already works as-is (either remote or local)
+  // Handle absolute URLs (including Open Graph images)
   if (path.startsWith('http')) {
     const exists = await checkImageUrl(path);
     if (exists) {
+      debugLog('External URL works:', path);
       return path;
     }
-  } 
+    debugLog('External URL failed:', path);
+  }
   
-  // First, try to adapt any old /lovable-uploads paths to new /img paths
-  if (path.includes('/lovable-uploads/')) {
-    const newPath = path.replace('/lovable-uploads/', '/img/');
-    debugLog('Converted old path to new path:', newPath);
-    
-    const exists = await checkImageUrl(newPath);
-    if (exists) {
-      return newPath;
-    }
+  // Remove any old /lovable-uploads paths
+  let cleanPath = path;
+  if (cleanPath.includes('/lovable-uploads/')) {
+    cleanPath = cleanPath.replace('/lovable-uploads/', '/img/');
+    debugLog('Converted old path to new path:', cleanPath);
+  }
+  
+  // Always prioritize /img/ folder
+  if (!cleanPath.includes('/img/') && !cleanPath.startsWith('/img/')) {
+    const filename = cleanPath.split('/').pop();
+    cleanPath = `/img/${filename}`;
+    debugLog('Prioritizing img folder:', cleanPath);
   }
   
   // Try path as-is
-  const pathAsIs = await checkImageUrl(path);
-  if (pathAsIs) {
-    debugLog('Path works as-is:', path);
-    return path;
+  let exists = await checkImageUrl(cleanPath);
+  if (exists) {
+    debugLog('Path works as-is:', cleanPath);
+    return cleanPath;
   }
   
-  // Then try with key extensions directly
+  // Try with extensions
   const extensions = ['.png', '.jpg', '.webp'];
   for (const ext of extensions) {
     // Skip if the path already has this extension
-    if (path.toLowerCase().endsWith(ext.toLowerCase())) continue;
+    if (cleanPath.toLowerCase().endsWith(ext.toLowerCase())) continue;
     
-    const pathWithExt = `${path}${ext}`;
+    const pathWithExt = `${cleanPath}${ext}`;
     debugLog('Testing with extension:', pathWithExt);
     
-    const exists = await checkImageUrl(pathWithExt);
+    exists = await checkImageUrl(pathWithExt);
     if (exists) {
       debugLog('Found working path with extension:', pathWithExt);
       return pathWithExt;
-    }
-  }
-  
-  // Try the most common location for this app
-  const imgPath = `/img/${path.split('/').pop()}`;
-  debugLog('Testing img path:', imgPath);
-  const imgExists = await checkImageUrl(imgPath);
-  if (imgExists) {
-    debugLog('Found working img path:', imgPath);
-    return imgPath;
-  }
-  
-  // Try with extensions on the img path
-  for (const ext of extensions) {
-    const imgPathWithExt = `${imgPath}${ext}`;
-    debugLog('Testing img path with extension:', imgPathWithExt);
-    
-    const exists = await checkImageUrl(imgPathWithExt);
-    if (exists) {
-      debugLog('Found working img path with extension:', imgPathWithExt);
-      return imgPathWithExt;
     }
   }
   
@@ -120,15 +104,30 @@ export const getCorrectImagePath = async (path: string): Promise<string> => {
 
 /**
  * Extract OpenGraph image from HTML content
+ * Enhanced to extract from more patterns
  */
 export const extractOpenGraphImage = (content: string): string | null => {
   if (!content) return null;
   
-  // Look for Open Graph image meta tag
+  // Look for Open Graph image meta tag (most common format)
   const ogMatch = content.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i);
   if (ogMatch && ogMatch[1]) {
     debugLog('Found Open Graph image:', ogMatch[1]);
     return ogMatch[1];
+  }
+  
+  // Look for alternate format Open Graph meta tag
+  const ogAltMatch = content.match(/<meta\s+content=["']([^"']+)["']\s+property=["']og:image["']/i);
+  if (ogAltMatch && ogAltMatch[1]) {
+    debugLog('Found alternate Open Graph image:', ogAltMatch[1]);
+    return ogAltMatch[1];
+  }
+  
+  // Look for Twitter image card
+  const twitterMatch = content.match(/<meta\s+(?:property|name)=["']twitter:image["']\s+content=["']([^"']+)["']/i);
+  if (twitterMatch && twitterMatch[1]) {
+    debugLog('Found Twitter image:', twitterMatch[1]);
+    return twitterMatch[1];
   }
   
   // Look for any image in the content as fallback
