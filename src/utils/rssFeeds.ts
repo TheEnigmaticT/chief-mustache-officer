@@ -29,6 +29,13 @@ const extractImageFromContent = (content: string): string | undefined => {
   return match ? match[1] : undefined;
 };
 
+// Function to extract Open Graph image from HTML content
+const extractOpenGraphImage = (content: string): string | undefined => {
+  const ogRegex = /<meta\s+property="og:image"\s+content="([^">]+)"/i;
+  const match = content.match(ogRegex);
+  return match ? match[1] : undefined;
+};
+
 // Helper to extract YouTube video ID from URL
 const extractYouTubeId = (url: string): string => {
   const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\s*[^\/\n\s]+\/\s*(?:watch\?(?:\S*?&)?v=)|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -54,6 +61,7 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
     }
     
     const data = await response.json();
+    console.log('Blog RSS data received:', data);
     
     if (data.status !== 'ok' || !data.items || !Array.isArray(data.items)) {
       console.error('Invalid RSS2JSON response format:', data);
@@ -61,8 +69,12 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
     }
     
     const posts: BlogPost[] = data.items.map((item: any, index: number) => {
-      // Extract image URL
-      const imageUrl = item.thumbnail || extractImageFromContent(item.content) || getLocalImage(index);
+      // Try to extract image URL from various sources with fallbacks
+      const imageUrl = 
+        item.thumbnail || 
+        extractOpenGraphImage(item.content) || 
+        extractImageFromContent(item.content) || 
+        getLocalImage(index);
       
       // Create excerpt from description/content
       let excerpt = item.description || '';
@@ -107,6 +119,7 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
     }
     
     const data = await response.json();
+    console.log('YouTube RSS data received:', data);
     
     if (data.status !== 'ok' || !data.items || !Array.isArray(data.items)) {
       console.error('Invalid RSS2JSON response format:', data);

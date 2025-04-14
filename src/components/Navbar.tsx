@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
@@ -7,9 +7,10 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  // Logo image with fallback
-  const logoImageUrl = logoError ? "/lovable-uploads/image-1" : "/lovable-uploads/image-1";
+  // Use local image path to avoid CORS issues
+  const logoImagePath = "/lovable-uploads/image-1";
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -17,14 +18,38 @@ const Navbar = () => {
 
   // Preload the logo image
   useEffect(() => {
+    // Reset states when image source changes
+    setLogoLoaded(false);
+    setLogoError(false);
+    
+    // Create new image for preloading
     const img = new Image();
-    img.src = logoImageUrl;
-    img.onload = () => setLogoLoaded(true);
+    img.src = logoImagePath;
+    
+    // Handle successful load
+    img.onload = () => {
+      setLogoLoaded(true);
+      console.log("Logo image loaded successfully:", logoImagePath);
+    };
+    
+    // Handle loading error
     img.onerror = () => {
-      console.error("Failed to load logo image");
+      console.error("Failed to load logo image:", logoImagePath);
       setLogoError(true);
     };
-  }, [logoImageUrl]);
+    
+    // Check if image is already cached
+    if (imgRef.current && imgRef.current.complete) {
+      setLogoLoaded(true);
+      console.log("Logo image was already cached");
+    }
+    
+    return () => {
+      // Clean up event listeners
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [logoImagePath]);
 
   return (
     <header className="fixed w-full bg-white/90 backdrop-blur-sm z-50 shadow-sm">
@@ -34,13 +59,23 @@ const Navbar = () => {
           <Link to="/" className="flex items-center">
             {logoLoaded ? (
               <img 
-                src={logoImageUrl}
+                ref={imgRef}
+                src={logoImagePath}
                 alt="Chief Mustache Officer"
                 className="h-8 rounded-full"
                 loading="eager"
               />
             ) : (
-              <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse"></div>
+              <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse flex items-center justify-center">
+                <img 
+                  ref={imgRef}
+                  src={logoImagePath}
+                  alt="Chief Mustache Officer"
+                  className="opacity-0 absolute"
+                  onLoad={() => setLogoLoaded(true)}
+                  onError={() => setLogoError(true)}
+                />
+              </div>
             )}
           </Link>
 

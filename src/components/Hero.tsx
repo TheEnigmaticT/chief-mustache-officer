@@ -1,24 +1,50 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowDownCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Hero = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
   
-  const heroImageUrl = imageError ? "/lovable-uploads/image-2" : "/lovable-uploads/image-1";
+  // Use local image paths to avoid CORS issues
+  const heroImagePath = imageError ? "/lovable-uploads/image-2" : "/lovable-uploads/image-1";
   
   // Preload the hero image
   useEffect(() => {
+    // Reset states when image source changes
+    setImageLoaded(false);
+    setImageError(false);
+    
+    // Create new image for preloading
     const img = new Image();
-    img.src = heroImageUrl;
-    img.onload = () => setImageLoaded(true);
+    img.src = heroImagePath;
+    
+    // Handle successful load
+    img.onload = () => {
+      setImageLoaded(true);
+      console.log("Hero image loaded successfully:", heroImagePath);
+    };
+    
+    // Handle loading error
     img.onerror = () => {
-      console.error("Failed to load hero image");
+      console.error("Failed to load hero image:", heroImagePath);
       setImageError(true);
     };
-  }, [heroImageUrl]);
+    
+    // Check if image is already cached
+    if (imgRef.current && imgRef.current.complete) {
+      setImageLoaded(true);
+      console.log("Hero image was already cached");
+    }
+    
+    return () => {
+      // Clean up event listeners
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [heroImagePath]);
 
   return (
     <section className="pt-24 pb-16 md:py-32 bg-gradient-to-br from-navy to-navy-light">
@@ -47,13 +73,24 @@ const Hero = () => {
           <div className="order-1 md:order-2 flex justify-center md:justify-end animate-fadeIn">
             {imageLoaded ? (
               <img 
-                src={heroImageUrl} 
+                ref={imgRef}
+                src={heroImagePath} 
                 alt="Trevor Longino" 
                 className="rounded-lg shadow-xl w-full max-w-sm object-cover"
                 loading="eager"
               />
             ) : (
-              <div className="rounded-lg shadow-xl w-full max-w-sm h-80 bg-gray-300 animate-pulse"></div>
+              <div className="rounded-lg shadow-xl w-full max-w-sm h-80 bg-gray-300 animate-pulse flex items-center justify-center">
+                <img 
+                  ref={imgRef}
+                  src={heroImagePath}
+                  alt="Trevor Longino"
+                  className="opacity-0 absolute"
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => setImageError(true)}
+                />
+                {imageError && <span className="text-gray-600">Loading image...</span>}
+              </div>
             )}
           </div>
         </div>
