@@ -24,43 +24,53 @@ export const projects: Project[] = [
   },
   {
     id: "2",
-    title: "Indivity Integration Platform",
-    description: "Co-founded solution that integrates data about people across software platforms, enabling better decision-making and workflow automation for growth-focused companies.",
-    imageUrl: "/lovable-uploads/image-5",
-    technologies: ["Data Integration", "API Development", "MarTech"],
-    liveUrl: "https://indivity.io",
-    status: "Completed",
+    title: "HeyGail - AI Meeting Assistant",
+    description: "An AI-powered meeting assistant that helps teams capture action items, decisions, and key points from meetings, enabling better follow-through and team alignment.",
+    technologies: ["AI", "NLP", "Meeting Software", "Productivity"],
+    liveUrl: "https://heygail.com",
+    status: "Active",
     featured: true
   },
   {
     id: "3",
-    title: "MantaBond",
-    description: "Part of the founding team creating a supergroup of C-level executives to help companies scale effectively through fractional leadership and strategic guidance.",
-    technologies: ["Executive Leadership", "Scaling Strategy", "Growth Advisory"],
-    liveUrl: "https://mantabond.com",
+    title: "Insight by CrowdTamers",
+    description: "Data analytics and insights platform for growth marketers, providing actionable marketing intelligence to optimize campaigns and improve ROI.",
+    technologies: ["Data Analytics", "Marketing Intelligence", "Dashboard"],
+    liveUrl: "https://insight.crowdtamers.com",
     status: "Active",
     featured: true
   },
   {
     id: "4",
-    title: "Marketing Growth Framework",
-    description: "Developing an open-source marketing framework for early-stage startups, based on 20+ years of experience scaling companies from zero to millions in revenue.",
-    technologies: ["Growth Marketing", "Framework Development", "Open Source"],
-    status: "Planned"
+    title: "Validate First Book",
+    description: "A comprehensive guide for entrepreneurs on validating business ideas before investing significant resources, based on experience launching over 100 startups.",
+    technologies: ["Product Validation", "Startup Methodology", "User Research"],
+    liveUrl: "https://crowdtamers.gumroad.com/l/validate",
+    status: "Completed"
   },
   {
     id: "5",
-    title: "Startup Marketing Playbook",
-    description: "Comprehensive guide for founders on implementing effective marketing strategies with limited resources. Includes templates, examples, and step-by-step implementation plans.",
-    technologies: ["Content Creation", "Marketing Strategy", "Educational Resources"],
+    title: "Modern Open Culture",
+    description: "Open source guide on how to run teams effectively in today's distributed work environment, focusing on transparency, autonomy, and results-oriented management.",
+    technologies: ["Team Management", "Leadership", "Open Source"],
+    repoUrl: "https://github.com/TheEnigmaticT/modern_open_culture",
     status: "Active"
   },
   {
     id: "6",
-    title: "Growth Marketing Certification",
-    description: "Developing an online certification program to teach marketers and founders data-driven growth techniques based on real-world case studies and proven methodologies.",
-    technologies: ["EdTech", "Marketing Education", "Certification Development"],
+    title: "Midline - Retro MIDI Game Library",
+    description: "A library for creating retro-style video games with MIDI sound integration, combining nostalgic gameplay with modern development practices.",
+    technologies: ["Game Development", "MIDI", "JavaScript"],
+    repoUrl: "https://github.com/TheEnigmaticT/midline",
     status: "Planned"
+  },
+  {
+    id: "7",
+    title: "BeeTrip - AI Expense Reporting",
+    description: "Pioneering AI-powered expense reporting solution from 2018 that automatically categorizes and processes business travel expenses.",
+    technologies: ["AI", "Expense Management", "Business Travel"],
+    repoUrl: "https://github.com/Beetrip/beetrip.github.io",
+    status: "Completed"
   }
 ];
 

@@ -29,9 +29,9 @@ const Hero = () => {
           </div>
           <div className="order-1 md:order-2 flex justify-center md:justify-end animate-fadeIn">
             <img 
-              src="/lovable-uploads/image-1" 
+              src="http://chiefmustacheofficer.com/images/ChiefMustacheOfficer_Logo.png" 
               alt="Trevor Longino" 
-              className="rounded-lg shadow-xl w-full max-w-sm object-cover aspect-square" 
+              className="rounded-lg shadow-xl w-full max-w-sm object-cover" 
             />
           </div>
         </div>

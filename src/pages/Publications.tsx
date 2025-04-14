@@ -1,9 +1,20 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { blogPosts, videos } from '../data/publications';
 import { Search, Youtube, FileText, ExternalLink } from 'lucide-react';
+import { fetchBlogPosts, fetchYouTubeVideos } from '../utils/rssFeeds';
+import { BlogPost, Video } from '../utils/rssFeeds';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -17,12 +28,36 @@ const Publications = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'alphabetical'>('newest');
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   const filterOptions: FilterOption[] = [
     { label: 'Newest First', value: 'newest' },
     { label: 'Oldest First', value: 'oldest' },
     { label: 'Alphabetical', value: 'alphabetical' }
   ];
+
+  useEffect(() => {
+    const loadContent = async () => {
+      setIsLoading(true);
+      try {
+        const [loadedBlogPosts, loadedVideos] = await Promise.all([
+          fetchBlogPosts(),
+          fetchYouTubeVideos()
+        ]);
+        
+        setBlogPosts(loadedBlogPosts);
+        setVideos(loadedVideos);
+      } catch (error) {
+        console.error('Error loading content:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadContent();
+  }, []);
 
   // Filter and sort blog posts
   const filteredBlogPosts = blogPosts
@@ -76,6 +111,102 @@ const Publications = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Generate pagination links
+  const renderPaginationLinks = () => {
+    const links = [];
+    
+    // For smaller number of pages, show all
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        links.push(
+          <PaginationItem key={i}>
+            <PaginationLink 
+              isActive={currentPage === i} 
+              onClick={() => changePage(i)}
+            >
+              {i}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      }
+      return links;
+    }
+    
+    // For larger numbers, show first, last, and those around current
+    links.push(
+      <PaginationItem key={1}>
+        <PaginationLink 
+          isActive={currentPage === 1} 
+          onClick={() => changePage(1)}
+        >
+          1
+        </PaginationLink>
+      </PaginationItem>
+    );
+    
+    if (currentPage > 3) {
+      links.push(
+        <PaginationItem key="ellipsis-start">
+          <PaginationEllipsis />
+        </PaginationItem>
+      );
+    }
+    
+    const startPage = Math.max(2, currentPage - 1);
+    const endPage = Math.min(totalPages - 1, currentPage + 1);
+    
+    for (let i = startPage; i <= endPage; i++) {
+      links.push(
+        <PaginationItem key={i}>
+          <PaginationLink 
+            isActive={currentPage === i} 
+            onClick={() => changePage(i)}
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    if (currentPage < totalPages - 2) {
+      links.push(
+        <PaginationItem key="ellipsis-end">
+          <PaginationEllipsis />
+        </PaginationItem>
+      );
+    }
+    
+    if (totalPages > 1) {
+      links.push(
+        <PaginationItem key={totalPages}>
+          <PaginationLink 
+            isActive={currentPage === totalPages} 
+            onClick={() => changePage(totalPages)}
+          >
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    return links;
+  };
+
+  const renderSkeletons = () => {
+    return Array(6).fill(0).map((_, i) => (
+      <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="p-6">
+          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-1/4 mb-4" />
+          <Skeleton className="h-4 w-full mb-2" />
+          <Skeleton className="h-4 w-full mb-2" />
+          <Skeleton className="h-4 w-3/4 mb-6" />
+          <Skeleton className="h-4 w-1/3" />
+        </div>
+      </div>
+    ));
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -98,7 +229,7 @@ const Publications = () => {
               {/* Tabs */}
               <div className="flex space-x-4">
                 <button 
-                  className={`px-6 py-2 font-medium rounded-md transition-colors ${
+                  className={`px-6 py-2 font-medium rounded-md transition-colors flex items-center ${
                     activeTab === 'blog' 
                       ? 'bg-navy text-white' 
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -109,7 +240,7 @@ const Publications = () => {
                   Blog Posts
                 </button>
                 <button 
-                  className={`px-6 py-2 font-medium rounded-md transition-colors ${
+                  className={`px-6 py-2 font-medium rounded-md transition-colors flex items-center ${
                     activeTab === 'videos' 
                       ? 'bg-navy text-white' 
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -162,7 +293,11 @@ const Publications = () => {
         {/* Content Section */}
         <section className="py-12 bg-gray-50">
           <div className="container mx-auto px-4 md:px-8">
-            {activeTab === 'blog' ? (
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                {renderSkeletons()}
+              </div>
+            ) : activeTab === 'blog' ? (
               <div className="animate-fadeIn">
                 {currentItems.length === 0 ? (
                   <div className="text-center py-12">
@@ -230,37 +365,27 @@ const Publications = () => {
             )}
 
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-12 flex justify-center">
-                <nav className="inline-flex rounded-md shadow">
-                  <button 
-                    onClick={() => changePage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className="px-3 py-2 rounded-l-md bg-white border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
-                  >
-                    Previous
-                  </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => changePage(page)}
-                      className={`px-4 py-2 border border-gray-300 text-sm font-medium ${
-                        currentPage === page
-                          ? 'bg-navy text-white hover:bg-navy-light border-navy'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
-                      } ${page === 1 ? 'rounded-l-md' : ''} ${page === totalPages ? 'rounded-r-md' : ''}`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                  <button 
-                    onClick={() => changePage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-2 rounded-r-md bg-white border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
-                  >
-                    Next
-                  </button>
-                </nav>
+            {totalPages > 1 && !isLoading && (
+              <div className="mt-12">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => changePage(Math.max(1, currentPage - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                      />
+                    </PaginationItem>
+                    
+                    {renderPaginationLinks()}
+                    
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => changePage(Math.min(totalPages, currentPage + 1))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
               </div>
             )}
           </div>

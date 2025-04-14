@@ -16,9 +16,11 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className="text-xl font-heading font-semibold text-navy hover:text-mustache transition-colors">
-              Chief Mustache Officer
-            </span>
+            <img 
+              src="http://chiefmustacheofficer.com/images/ChiefMustacheOfficer_Logo_Horizontal.png" 
+              alt="Chief Mustache Officer"
+              className="h-8 mr-2"
+            />
           </Link>
 
           {/* Desktop Navigation */}
