@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ArrowDownCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { RobustImage } from '../utils/imageUtils';
+import RobustImage from './RobustImage';
 
 const Hero = () => {
   // Define multiple image paths to try

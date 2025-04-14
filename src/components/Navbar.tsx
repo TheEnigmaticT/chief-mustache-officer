@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import { RobustImage } from '../utils/imageUtils';
+import RobustImage from './RobustImage';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
