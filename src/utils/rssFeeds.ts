@@ -28,6 +28,13 @@ const extractImageFromContent = (content: string): string | undefined => {
   return match ? match[1] : undefined;
 };
 
+// Helper to extract YouTube video ID from URL
+const extractYouTubeId = (url: string): string => {
+  const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\s*[^\/\n\s]+\/\s*(?:watch\?(?:\S*?&)?v=)|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = url.match(regex);
+  return match ? match[1] : 'dQw4w9WgXcQ'; // Default to a known video ID if extraction fails
+};
+
 // Function to fetch and parse blog RSS
 export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
   try {
@@ -50,7 +57,7 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
           let description = item.description ? item.description[0] : '';
           // Extract image from content
           const content = item['content:encoded'] ? item['content:encoded'][0] : description;
-          const imageUrl = extractImageFromContent(content);
+          const imageUrl = extractImageFromContent(content) || `/lovable-uploads/image-${(index % 8) + 1}`; // Use local fallback images
           
           // Strip HTML tags for excerpt
           const excerpt = description.replace(/<[^>]*>/g, '').substring(0, 150) + '...';
@@ -98,7 +105,7 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
         const entries = result.feed.entry || [];
         const videos: Video[] = entries.map((entry: any, index: number) => {
           // Get video ID from link
-          const videoId = entry.id[0].split(':').pop();
+          const videoId = entry.id[0].split(':').pop() || extractYouTubeId(entry.link[0].$.href);
           const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
           const thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
           

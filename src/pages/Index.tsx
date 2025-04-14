@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import Hero from '../components/Hero';
 import FeaturedContent from '../components/FeaturedContent';
@@ -21,21 +20,24 @@ const mockBlogPosts: BlogPost[] = [
     title: 'How to Build a Million-Dollar Marketing Engine',
     excerpt: 'Learn the key strategies I used to build marketing systems that consistently deliver results for startups.',
     url: 'https://crowdtamers.com/million-dollar-marketing',
-    date: '2025-03-15'
+    date: '2025-03-15',
+    imageUrl: '/lovable-uploads/image-2'
   },
   {
     id: '2',
     title: 'The Validation Framework Every Startup Needs',
     excerpt: 'Before you build anything, you need to validate your idea. Here\'s my proven framework for effective validation.',
     url: 'https://crowdtamers.com/validation-framework',
-    date: '2025-02-28'
+    date: '2025-02-28',
+    imageUrl: '/lovable-uploads/image-3'
   },
   {
     id: '3',
     title: '5 Go-to-Market Strategies That Actually Work',
     excerpt: 'After launching 130+ startups, these are the GTM strategies I\'ve found to be consistently effective.',
     url: 'https://crowdtamers.com/gtm-strategies',
-    date: '2025-01-20'
+    date: '2025-01-20',
+    imageUrl: '/lovable-uploads/image-6'
   }
 ];
 
@@ -43,33 +45,33 @@ const mockVideos: Video[] = [
   {
     id: '1',
     title: 'Marketing Minute: Customer Acquisition Cost',
-    thumbnailUrl: 'https://via.placeholder.com/320x180?text=CAC+Video',
+    thumbnailUrl: '/lovable-uploads/image-7',
     videoUrl: 'https://www.youtube.com/watch?v=example1',
-    videoId: 'example1',
+    videoId: 'dQw4w9WgXcQ',
     date: '2025-03-10'
   },
   {
     id: '2',
     title: 'Marketing Minute: Value Proposition Design',
-    thumbnailUrl: 'https://via.placeholder.com/320x180?text=Value+Prop+Video',
+    thumbnailUrl: '/lovable-uploads/image-8',
     videoUrl: 'https://www.youtube.com/watch?v=example2',
-    videoId: 'example2',
+    videoId: '9bZkp7q19f0',
     date: '2025-02-25'
   },
   {
     id: '3',
     title: 'Marketing Minute: Positioning Strategy',
-    thumbnailUrl: 'https://via.placeholder.com/320x180?text=Positioning+Video',
+    thumbnailUrl: '/lovable-uploads/image-2',
     videoUrl: 'https://www.youtube.com/watch?v=example3',
-    videoId: 'example3',
+    videoId: 'jNQXAC9IVRw',
     date: '2025-02-15'
   },
   {
     id: '4',
     title: 'Marketing Minute: Customer Journey Mapping',
-    thumbnailUrl: 'https://via.placeholder.com/320x180?text=Customer+Journey+Video',
+    thumbnailUrl: '/lovable-uploads/image-3',
     videoUrl: 'https://www.youtube.com/watch?v=example4',
-    videoId: 'example4',
+    videoId: 'Y-P0Hs0ADJY',
     date: '2025-02-05'
   }
 ];

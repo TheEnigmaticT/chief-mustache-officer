@@ -90,13 +90,19 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
               {featuredVideos.map((video) => (
                 <div key={video.id} className="overflow-hidden rounded-lg shadow-md">
                   <div className="aspect-video w-full">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${video.videoId}`}
-                      title={video.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="w-full h-full"
-                    ></iframe>
+                    {video.videoId ? (
+                      <iframe
+                        src={`https://www.youtube.com/embed/${video.videoId}`}
+                        title={video.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full"
+                      ></iframe>
+                    ) : (
+                      <div className="bg-gray-200 w-full h-full flex items-center justify-center">
+                        <Youtube className="text-gray-400" size={48} />
+                      </div>
+                    )}
                   </div>
                   <div className="p-4">
                     <h4 className="font-medium text-navy">{video.title}</h4>
