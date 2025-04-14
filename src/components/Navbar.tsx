@@ -1,48 +1,23 @@
-import { useState, useEffect, useRef } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import { RobustImage } from '../utils/imageUtils';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [logoLoaded, setLogoLoaded] = useState(false);
-  const [logoError, setLogoError] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
 
-  // Changed from external HTTP URL to a local file path
-  // This avoids mixed content issues and cross-origin problems
-  const logoImagePath = "/lovable-uploads/image-6.png";
-  const fallbackLogoPath = "/lovable-uploads/image-3.png";
-  const secondFallbackPath = "/lovable-uploads/image-2.png";
+  // Define multiple logo paths to try
+  const logoPaths = [
+    "/lovable-uploads/image-6",
+    "/lovable-uploads/image-3",
+    "/lovable-uploads/image-2",
+    "/lovable-uploads/image-8"
+  ];
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-
-  // Preload the logo image
-  useEffect(() => {
-    setLogoLoaded(false);
-    setLogoError(false);
-
-    const img = new Image();
-    img.src = logoImagePath;
-
-    img.onload = () => {
-      setLogoLoaded(true);
-      console.log("Logo image loaded successfully:", logoImagePath);
-    };
-
-    img.onerror = () => {
-      console.error("Failed to load logo image:", logoImagePath);
-      setLogoError(true);
-      // Try fallback
-      img.src = fallbackLogoPath;
-    };
-
-    return () => {
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [logoImagePath]);
 
   return (
     <header className="fixed w-full bg-white/90 backdrop-blur-sm z-50 shadow-sm">
@@ -50,21 +25,12 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img 
-              ref={imgRef}
-              src={logoImagePath}
+            <RobustImage 
+              src={logoPaths[0]}
+              fallbacks={logoPaths.slice(1)}
               alt="Chief Mustache Officer"
-              className="h-8 rounded-full"
+              className="h-8 w-8 rounded-full object-cover"
               loading="eager"
-              onError={(e) => {
-                console.error("Logo image failed to load, trying fallback");
-                const target = e.target as HTMLImageElement;
-                if (target.src.includes(logoImagePath)) {
-                  target.src = fallbackLogoPath;
-                } else if (target.src.includes(fallbackLogoPath)) {
-                  target.src = secondFallbackPath;
-                }
-              }}
             />
           </Link>
 

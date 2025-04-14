@@ -1,72 +1,23 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { ArrowDownCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { RobustImage } from '../utils/imageUtils';
 
 const Hero = () => {
-    // Try multiple image paths
-    const possibleImagePaths = [
-      "/lovable-uploads/image-2",
-      "/lovable-uploads/image-2.png",
-      "/lovable-uploads/image-2.jpg",
-      "/image-2",
-      "/image-2.png",
-      "/assets/image-2.png",
-      "/images/image-2.png"
-    ];
-    
-    // Provide multiple fallbacks
-    const fallbackPaths = [
-      "/lovable-uploads/image-3",
-      "/lovable-uploads/image-6",
-      "/lovable-uploads/image-8",
-      "/placeholder.svg"
-    ];
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
+  // Define multiple image paths to try
+  const possibleImagePaths = [
+    "/lovable-uploads/image-2",
+    "/lovable-uploads/image-2.png",
+    "/lovable-uploads/image-3",
+    "/lovable-uploads/image-6",
+    "/lovable-uploads/image-8"
+  ];
   
-  // Change to include file extension and use a more reliable path
-  const heroImagePath = "/lovable-uploads/image-2.png";
-  const fallbackImagePath = "/lovable-uploads/image-3.png";
-
-  
-  
-  // Preload the hero image
-  useEffect(() => {
-    // Reset states when image source changes
-    setImageLoaded(false);
-    setImageError(false);
-    
-    // Create new image for preloading
-    const img = new Image();
-    img.src = heroImagePath;
-    
-    // Handle successful load
-    img.onload = () => {
-      setImageLoaded(true);
-      console.log("Hero image loaded successfully:", heroImagePath);
-    };
-    
-    // Handle loading error
-    img.onerror = () => {
-      console.error("Failed to load hero image:", heroImagePath);
-      setImageError(true);
-      // Try loading fallback image
-      img.src = fallbackImagePath;
-    };
-    
-    // Check if image is already cached
-    if (imgRef.current && imgRef.current.complete) {
-      setImageLoaded(true);
-      console.log("Hero image was already cached");
-    }
-    
-    return () => {
-      // Clean up event listeners
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [heroImagePath]);
+  // Provide multiple fallbacks
+  const fallbackPaths = [
+    "/placeholder.svg"
+  ];
 
   return (
     <section className="pt-24 pb-16 md:py-32 bg-gradient-to-br from-navy to-navy-light">
@@ -95,7 +46,7 @@ const Hero = () => {
           <div className="order-1 md:order-2 flex justify-center md:justify-end animate-fadeIn">
             <RobustImage 
               src={possibleImagePaths[0]}
-              fallbacks={[...possibleImagePaths.slice(1), ...fallbackPaths]}
+              fallbacks={possibleImagePaths.slice(1).concat(fallbackPaths)}
               alt="Trevor Longino" 
               className="rounded-lg shadow-xl w-full max-w-sm object-cover"
               height="320px"
