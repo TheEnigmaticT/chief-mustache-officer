@@ -1,98 +1,134 @@
-/**
- * Utility functions for handling images and media throughout the application
- */
+// src/utils/imageUtils.ts
+
+// Debug mode to help troubleshoot image loading
+const DEBUG = true;
 
 /**
- * Ensures an image path has a file extension
- * @param path - The image path to check/modify
- * @returns The image path with an extension
+ * Logs debug information if debug mode is enabled
  */
-export const ensureImageExtension = (path: string): string => {
-    if (!path) return '';
-    
-    // If it already has an image extension, return as is
-    if (path.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
-      return path;
+const debugLog = (message: string, ...args: any[]) => {
+  if (DEBUG) {
+    console.log(`[ImageDebug] ${message}`, ...args);
+  }
+};
+
+/**
+ * Checks if a URL is valid and accessible
+ * @param url - URL to check
+ */
+export const checkImageUrl = (url: string): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
+  });
+};
+
+/**
+ * Gets the correct image path with multiple fallback options
+ * @param path - Original image path
+ */
+export const getCorrectImagePath = async (path: string): Promise<string> => {
+  if (!path) return '/placeholder.svg';
+  
+  debugLog('Trying path:', path);
+  
+  // List of possible extensions to try
+  const extensions = ['', '.png', '.jpg', '.jpeg', '.webp', '.svg'];
+  
+  // List of possible base paths
+  const basePaths = [
+    '', // Original path as-is
+    '/',
+    '/lovable-uploads/',
+    '/public/',
+    '/assets/',
+    '/images/'
+  ];
+  
+  // Try each combination
+  for (const basePath of basePaths) {
+    for (const ext of extensions) {
+      // Skip if the path already has this extension
+      if (ext && path.toLowerCase().endsWith(ext.toLowerCase())) continue;
+      
+      // Create test path
+      const testPath = `${basePath}${path.replace(/^\//, '')}${ext}`;
+      
+      // Check if this path works
+      const exists = await checkImageUrl(testPath);
+      if (exists) {
+        debugLog('Found working path:', testPath);
+        return testPath;
+      }
     }
-    
-    // Add default extension
-    return `${path}.png`;
-  };
-  
-  /**
-   * Gets a fallback image path based on an index
-   * @param index - Index used to determine which fallback image to use
-   * @returns Path to a fallback image
-   */
-  export const getFallbackImage = (index: number): string => {
-    // Use images 3-8 to avoid using potentially problematic images
-    const imageIndex = (index % 6) + 3;
-    return `/lovable-uploads/image-${imageIndex}`;
-  };
-  
-  /**
-   * Extracts YouTube video ID from a URL
-   * @param url - YouTube URL to extract ID from
-   * @returns YouTube video ID or empty string if not found
-   */
-  export const extractYouTubeId = (url: string): string => {
-    if (!url) return '';
-    
-    // Match various YouTube URL formats
-    const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\s*[^\/\n\s]+\/\s*(?:watch\?(?:\S*?&)?v=)|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = url.match(regex);
-    
-    return match ? match[1] : '';
-  };
-  
-  /**
-   * Determines if a YouTube video is likely a Short
-   * @param videoId - YouTube video ID
-   * @returns Boolean indicating if it's likely a Short
-   */
-  export const isYouTubeShort = (videoId: string): boolean => {
-    // This is a simplistic check - in a real app you would need a more robust check
-    // Shorts are typically in vertical format, but the videoId format is the same
-    return videoId.length === 11; // All YouTube video IDs are 11 characters
-  };
-  
-  /**
-   * React component for an image with built-in fallback handling
-   */
-  import React, { useState } from 'react';
-  
-  interface ImageWithFallbackProps {
-    src: string;
-    alt: string;
-    fallbackSrc?: string;
-    className?: string;
-    [key: string]: any;
   }
   
-  export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({ 
-    src, 
-    alt, 
-    fallbackSrc, 
-    className,
-    ...props 
-  }) => {
-    const [imgSrc, setImgSrc] = useState(ensureImageExtension(src));
-    const [error, setError] = useState(false);
+  // If all else fails, return placeholder
+  debugLog('No working path found, using placeholder');
+  return '/placeholder.svg';
+};
+
+/**
+ * React component for images with robust fallback handling
+ */
+import React, { useState, useEffect } from 'react';
+
+export const RobustImage: React.FC<{
+  src: string;
+  alt: string;
+  className?: string;
+  fallbacks?: string[];
+  [key: string]: any;
+}> = ({ src, alt, className, fallbacks = [], ...props }) => {
+  const [imgSrc, setImgSrc] = useState('/placeholder.svg');
+  const [isLoading, setIsLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   
-    const handleError = () => {
-      if (!error && fallbackSrc) {
-        setError(true);
-        setImgSrc(ensureImageExtension(fallbackSrc));
+  useEffect(() => {
+    const loadImage = async () => {
+      setIsLoading(true);
+      
+      // Try original source first
+      let path = await getCorrectImagePath(src);
+      
+      // If it failed and we have fallbacks, try those
+      if (path === '/placeholder.svg' && fallbacks.length > 0 && attempt < fallbacks.length) {
+        path = await getCorrectImagePath(fallbacks[attempt]);
       }
+      
+      setImgSrc(path);
+      setIsLoading(false);
     };
+    
+    loadImage();
+  }, [src, attempt, fallbacks]);
   
-    return (
+  const handleError = () => {
+    debugLog('Image error, trying next fallback');
+    if (attempt < fallbacks.length) {
+      setAttempt(attempt + 1);
+    } else {
+      setImgSrc('/placeholder.svg');
+    }
+  };
+  
+  return (
+    <>
+      {isLoading && (
+        <div className="bg-gray-200 animate-pulse flex items-center justify-center rounded" 
+             style={{ width: '100%', height: props.height || '200px' }}>
+          <span className="text-gray-500">Loading...</span>
+        </div>
+      )}
       <img
         src={imgSrc}
         alt={alt}
-        className={className}
+        className={`${className} ${isLoading ? 'hidden' : ''}`}
         onError={handleError}
         {...props}
       />
-    );
-  };
+    </>
+  );
+};

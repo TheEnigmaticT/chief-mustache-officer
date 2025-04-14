@@ -3,6 +3,24 @@ import { ArrowDownCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Hero = () => {
+    // Try multiple image paths
+    const possibleImagePaths = [
+      "/lovable-uploads/image-2",
+      "/lovable-uploads/image-2.png",
+      "/lovable-uploads/image-2.jpg",
+      "/image-2",
+      "/image-2.png",
+      "/assets/image-2.png",
+      "/images/image-2.png"
+    ];
+    
+    // Provide multiple fallbacks
+    const fallbackPaths = [
+      "/lovable-uploads/image-3",
+      "/lovable-uploads/image-6",
+      "/lovable-uploads/image-8",
+      "/placeholder.svg"
+    ];
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -10,6 +28,8 @@ const Hero = () => {
   // Change to include file extension and use a more reliable path
   const heroImagePath = "/lovable-uploads/image-2.png";
   const fallbackImagePath = "/lovable-uploads/image-3.png";
+
+  
   
   // Preload the hero image
   useEffect(() => {
@@ -73,38 +93,13 @@ const Hero = () => {
             </div>
           </div>
           <div className="order-1 md:order-2 flex justify-center md:justify-end animate-fadeIn">
-            {imageLoaded ? (
-              <img 
-                ref={imgRef}
-                src={heroImagePath} 
-                alt="Trevor Longino" 
-                className="rounded-lg shadow-xl w-full max-w-sm object-cover"
-                loading="eager"
-                onError={(e) => {
-                  console.error("Hero image failed to load at render time");
-                  const target = e.target as HTMLImageElement;
-                  setImageError(true);
-                  target.src = fallbackImagePath;
-                }}
-              />
-            ) : (
-              <div className="rounded-lg shadow-xl w-full max-w-sm h-80 bg-gray-300 animate-pulse flex items-center justify-center">
-                <img 
-                  ref={imgRef}
-                  src={heroImagePath}
-                  alt="Trevor Longino"
-                  className="opacity-0 absolute"
-                  onLoad={() => setImageLoaded(true)}
-                  onError={(e) => {
-                    setImageError(true);
-                    const target = e.target as HTMLImageElement;
-                    console.error("Initial hero image load failed, trying fallback");
-                    target.src = fallbackImagePath;
-                  }}
-                />
-                {imageError && <span className="text-gray-600">Loading image...</span>}
-              </div>
-            )}
+            <RobustImage 
+              src={possibleImagePaths[0]}
+              fallbacks={[...possibleImagePaths.slice(1), ...fallbackPaths]}
+              alt="Trevor Longino" 
+              className="rounded-lg shadow-xl w-full max-w-sm object-cover"
+              height="320px"
+            />
           </div>
         </div>
 
