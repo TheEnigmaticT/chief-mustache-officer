@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -87,9 +88,16 @@ const Publications = () => {
       }
     });
 
-  const currentItems = activeTab === 'blog' 
-    ? filteredBlogPosts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
-    : filteredVideos.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  // Get current items based on active tab
+  const currentBlogPosts = filteredBlogPosts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE, 
+    currentPage * ITEMS_PER_PAGE
+  );
+  
+  const currentVideos = filteredVideos.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE, 
+    currentPage * ITEMS_PER_PAGE
+  );
   
   const totalPages = Math.ceil(
     (activeTab === 'blog' ? filteredBlogPosts.length : filteredVideos.length) / ITEMS_PER_PAGE
@@ -285,13 +293,13 @@ const Publications = () => {
               </div>
             ) : activeTab === 'blog' ? (
               <div className="animate-fadeIn">
-                {currentItems.length === 0 ? (
+                {currentBlogPosts.length === 0 ? (
                   <div className="text-center py-12">
                     <h3 className="text-xl text-gray-600">No blog posts match your search criteria</h3>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                    {currentItems.map((post: BlogPost) => (
+                    {currentBlogPosts.map((post: BlogPost) => (
                       <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                         {post.imageUrl && (
                           <div className="aspect-video overflow-hidden">
@@ -327,13 +335,13 @@ const Publications = () => {
               </div>
             ) : (
               <div className="animate-fadeIn">
-                {currentItems.length === 0 ? (
+                {currentVideos.length === 0 ? (
                   <div className="text-center py-12">
                     <h3 className="text-xl text-gray-600">No videos match your search criteria</h3>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                    {currentItems.map((video: Video) => (
+                    {currentVideos.map((video: Video) => (
                       <div key={video.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                         <div className="aspect-video">
                           <iframe

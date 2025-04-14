@@ -45,6 +45,7 @@ const mockVideos: Video[] = [
     title: 'Marketing Minute: Customer Acquisition Cost',
     thumbnailUrl: 'https://via.placeholder.com/320x180?text=CAC+Video',
     videoUrl: 'https://www.youtube.com/watch?v=example1',
+    videoId: 'example1',
     date: '2025-03-10'
   },
   {
@@ -52,6 +53,7 @@ const mockVideos: Video[] = [
     title: 'Marketing Minute: Value Proposition Design',
     thumbnailUrl: 'https://via.placeholder.com/320x180?text=Value+Prop+Video',
     videoUrl: 'https://www.youtube.com/watch?v=example2',
+    videoId: 'example2',
     date: '2025-02-25'
   },
   {
@@ -59,6 +61,7 @@ const mockVideos: Video[] = [
     title: 'Marketing Minute: Positioning Strategy',
     thumbnailUrl: 'https://via.placeholder.com/320x180?text=Positioning+Video',
     videoUrl: 'https://www.youtube.com/watch?v=example3',
+    videoId: 'example3',
     date: '2025-02-15'
   },
   {
@@ -66,6 +69,7 @@ const mockVideos: Video[] = [
     title: 'Marketing Minute: Customer Journey Mapping',
     thumbnailUrl: 'https://via.placeholder.com/320x180?text=Customer+Journey+Video',
     videoUrl: 'https://www.youtube.com/watch?v=example4',
+    videoId: 'example4',
     date: '2025-02-05'
   }
 ];
