@@ -10,44 +10,51 @@ export interface Testimonial {
 export const testimonials: Testimonial[] = [
   {
     id: "1",
-    text: "Trevor helped us go from $0 to $2MM ARR in just 18 months with his data-driven growth strategies. His marketing expertise transformed our startup trajectory.",
-    author: "Sarah Johnson",
-    position: "CEO",
-    company: "TechFusion"
+    text: "When I want to trust someone with our GTM, Trevor is the best. We gave him a month to build out our GTM strategy from scratch, and he built a self-sustaining marketing strategy that doubled the number of student projects on Lovable. This is the definition of very good work.",
+    author: "Justin Chalker",
+    position: "COO",
+    company: "Lovable AI"
   },
   {
     id: "2",
-    text: "Working with Trevor was transformative for our marketing team. His strategic vision and practical approach to growth helped us refine our positioning and double our lead generation.",
-    author: "Michael Chen",
-    position: "COO",
-    company: "Fluent AI"
+    text: "Trevor is a seasoned marketing leader who has served as fractional CMO for a number of startups. His ability to take products to market is only surpassed by his breadth of SaaS and gaming experience. I strongly recommend Trevor for senior marketing roles, he will be an impact player immediately.",
+    author: "Wes Cummings",
+    position: "Founder",
+    company: "Recruiter.com"
   },
   {
     id: "3",
-    text: "Trevor's workshops on startup marketing strategies provided our incubator companies with actionable insights that led to immediate results. His ability to simplify complex concepts is remarkable.",
-    author: "Emma Rodriguez",
-    position: "Director of Startup Programs",
-    company: "Innovation Hub"
+    text: "I've worked with countless marketing professionals in my 25+ year career. Trevor may be the best marketing mind I've ever encountered.",
+    author: "Garin Hess",
+    position: "Founder & CEO",
+    company: "Consensus"
   },
   {
     id: "4",
-    text: "I've attended many marketing seminars, but Trevor's approach to growth is uniquely effective. He combines deep theoretical knowledge with practical, actionable advice that works in the real world.",
-    author: "David Patel",
-    position: "Founder",
-    company: "MetricFlow"
+    text: "Trevor has a meaningful advantage over a lot of marketers: he has experience on both the technical and creative sides. Having that level of empathy for the entire process makes him a more effective, mindful leader and creative.",
+    author: "Chris Paul",
+    position: "Co-Founder & CEO",
+    company: "Literal Humans"
   },
   {
     id: "5",
-    text: "Trevor's marketing leadership helped us navigate a challenging pivot and emerge stronger. His strategic insights and hands-on approach were exactly what we needed.",
-    author: "Lisa Thompson",
-    position: "CEO",
-    company: "Orbital Systems"
+    text: "Trevor Longino is one of those super rare people who possesses a mind-blowing set of qualities that make him a marketing genius with extraordinary business acumen.",
+    author: "Ken Johnson",
+    position: "CRO",
+    company: "Interapt"
   },
   {
     id: "6",
-    text: "Trevor's ability to identify and articulate our unique value proposition completely transformed our marketing approach. His guidance led to a 300% increase in qualified leads within three months.",
-    author: "Alex Kozak",
-    position: "VP Marketing",
-    company: "DataSync"
+    text: "What's most impressive to me about Trevor is his grasp of the technical and tactical aspects of digital marketing. He thinks like an engineer and implements like an artist.",
+    author: "Ana Milicevic",
+    position: "Principal & Co-Founder",
+    company: "Sparrow Advisers"
+  },
+  {
+    id: "7",
+    text: "I've been working with Trevor for more than 2 months now, and it was one of the best decisions I've ever made. He helped me discover who my ideal customer is and helped me get clarity on my ICP.",
+    author: "Zawwadul Sami",
+    position: "Founder",
+    company: "IndieAdvisers"
   }
 ];

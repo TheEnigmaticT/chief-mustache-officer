@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -59,7 +58,6 @@ const Publications = () => {
     loadContent();
   }, []);
 
-  // Filter and sort blog posts
   const filteredBlogPosts = blogPosts
     .filter(post => 
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -75,7 +73,6 @@ const Publications = () => {
       }
     });
 
-  // Filter and sort videos
   const filteredVideos = videos
     .filter(video => 
       video.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -90,7 +87,6 @@ const Publications = () => {
       }
     });
 
-  // Pagination
   const currentItems = activeTab === 'blog' 
     ? filteredBlogPosts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
     : filteredVideos.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -99,23 +95,19 @@ const Publications = () => {
     (activeTab === 'blog' ? filteredBlogPosts.length : filteredVideos.length) / ITEMS_PER_PAGE
   );
 
-  // Handle tab change
   const handleTabChange = (tab: 'blog' | 'videos') => {
     setActiveTab(tab);
     setCurrentPage(1);
   };
 
-  // Change page
   const changePage = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Generate pagination links
   const renderPaginationLinks = () => {
     const links = [];
     
-    // For smaller number of pages, show all
     if (totalPages <= 7) {
       for (let i = 1; i <= totalPages; i++) {
         links.push(
@@ -132,7 +124,6 @@ const Publications = () => {
       return links;
     }
     
-    // For larger numbers, show first, last, and those around current
     links.push(
       <PaginationItem key={1}>
         <PaginationLink 
@@ -211,7 +202,6 @@ const Publications = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow pt-16">
-        {/* Header Section */}
         <section className="py-16 bg-navy text-white">
           <div className="container mx-auto px-4 md:px-8">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Publications</h1>
@@ -222,11 +212,9 @@ const Publications = () => {
           </div>
         </section>
 
-        {/* Filters Section */}
         <section className="bg-white py-8 border-b">
           <div className="container mx-auto px-4 md:px-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
-              {/* Tabs */}
               <div className="flex space-x-4">
                 <button 
                   className={`px-6 py-2 font-medium rounded-md transition-colors flex items-center ${
@@ -252,7 +240,6 @@ const Publications = () => {
                 </button>
               </div>
 
-              {/* Sort and Search */}
               <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
                 <div className="relative">
                   <select
@@ -290,7 +277,6 @@ const Publications = () => {
           </div>
         </section>
 
-        {/* Content Section */}
         <section className="py-12 bg-gray-50">
           <div className="container mx-auto px-4 md:px-8">
             {isLoading ? (
@@ -305,8 +291,22 @@ const Publications = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                    {currentItems.map((post) => (
+                    {currentItems.map((post: BlogPost) => (
                       <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                        {post.imageUrl && (
+                          <div className="aspect-video overflow-hidden">
+                            <img 
+                              src={post.imageUrl} 
+                              alt={post.title} 
+                              className="w-full h-full object-cover hover:scale-105 transition-transform"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.onerror = null;
+                                target.style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        )}
                         <div className="p-6">
                           <h3 className="text-xl font-semibold text-navy mb-2">{post.title}</h3>
                           <p className="text-sm text-gray-500 mb-4">{post.date}</p>
@@ -333,38 +333,38 @@ const Publications = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                    {currentItems.map((video) => (
-                      <a
-                        key={video.id}
-                        href={video.videoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group"
-                      >
-                        <div className="aspect-video relative">
-                          <img 
-                            src={video.thumbnailUrl} 
-                            alt={video.title} 
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Youtube size={48} className="text-white" />
-                          </div>
+                    {currentItems.map((video: Video) => (
+                      <div key={video.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div className="aspect-video">
+                          <iframe
+                            src={`https://www.youtube.com/embed/${video.videoId}`}
+                            title={video.title}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-full"
+                          ></iframe>
                         </div>
                         <div className="p-6">
-                          <h3 className="text-lg font-semibold text-navy mb-2 group-hover:text-mustache transition-colors">
+                          <h3 className="text-lg font-semibold text-navy mb-2">
                             {video.title}
                           </h3>
                           <p className="text-sm text-gray-500">{video.date}</p>
+                          <a 
+                            href={video.videoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center text-mustache hover:text-mustache-light font-medium mt-4"
+                          >
+                            Watch on YouTube <ExternalLink size={16} className="ml-1" />
+                          </a>
                         </div>
-                      </a>
+                      </div>
                     ))}
                   </div>
                 )}
               </div>
             )}
 
-            {/* Pagination */}
             {totalPages > 1 && !isLoading && (
               <div className="mt-12">
                 <Pagination>

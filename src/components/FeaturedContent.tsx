@@ -8,6 +8,7 @@ interface BlogPost {
   excerpt: string;
   url: string;
   date: string;
+  imageUrl?: string;
 }
 
 interface Video {
@@ -15,6 +16,7 @@ interface Video {
   title: string;
   thumbnailUrl: string;
   videoUrl: string;
+  videoId: string;
   date: string;
 }
 
@@ -46,6 +48,20 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
             <div className="space-y-8">
               {featuredPosts.map((post) => (
                 <div key={post.id} className="border-b border-gray-200 pb-6 last:border-b-0">
+                  {post.imageUrl && (
+                    <div className="mb-4 overflow-hidden rounded-lg">
+                      <img 
+                        src={post.imageUrl} 
+                        alt={post.title} 
+                        className="w-full h-48 object-cover hover:scale-105 transition-transform"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
                   <h4 className="text-xl font-semibold mb-2">{post.title}</h4>
                   <p className="text-sm text-gray-500 mb-2">{post.date}</p>
                   <p className="text-gray-700 mb-3">{post.excerpt}</p>
@@ -65,35 +81,28 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
           {/* Featured YouTube Videos */}
           <div>
             <div className="flex items-center mb-6">
-              <h3 className="text-2xl font-semibold text-navy">Latest YouTube Shorts</h3>
+              <h3 className="text-2xl font-semibold text-navy">Latest YouTube Videos</h3>
               <Link to="/publications" className="ml-auto text-mustache hover:text-mustache-light text-sm font-medium">
                 View All →
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-6">
               {featuredVideos.map((video) => (
-                <a
-                  key={video.id}
-                  href={video.videoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow"
-                >
-                  <div className="relative aspect-video">
-                    <img
-                      src={video.thumbnailUrl}
-                      alt={video.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Youtube size={48} className="text-white" />
-                    </div>
+                <div key={video.id} className="overflow-hidden rounded-lg shadow-md">
+                  <div className="aspect-video w-full">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${video.videoId}`}
+                      title={video.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    ></iframe>
                   </div>
-                  <div className="p-3">
-                    <h4 className="font-medium text-sm line-clamp-2">{video.title}</h4>
-                    <p className="text-xs text-gray-500 mt-1">{video.date}</p>
+                  <div className="p-4">
+                    <h4 className="font-medium text-navy">{video.title}</h4>
+                    <p className="text-sm text-gray-500 mt-1">{video.date}</p>
                   </div>
-                </a>
+                </div>
               ))}
             </div>
           </div>
