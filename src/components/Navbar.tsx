@@ -9,8 +9,8 @@ const Navbar = () => {
   const [logoError, setLogoError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // Use local image path to avoid CORS issues
-  const logoImagePath = "/lovable-uploads/image-1";
+  // Use a different image for the logo to avoid previous issues
+  const logoImagePath = "/lovable-uploads/image-3";
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -57,26 +57,18 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            {logoLoaded ? (
-              <img 
-                ref={imgRef}
-                src={logoImagePath}
-                alt="Chief Mustache Officer"
-                className="h-8 rounded-full"
-                loading="eager"
-              />
-            ) : (
-              <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse flex items-center justify-center">
-                <img 
-                  ref={imgRef}
-                  src={logoImagePath}
-                  alt="Chief Mustache Officer"
-                  className="opacity-0 absolute"
-                  onLoad={() => setLogoLoaded(true)}
-                  onError={() => setLogoError(true)}
-                />
-              </div>
-            )}
+            <img 
+              ref={imgRef}
+              src={logoImagePath}
+              alt="Chief Mustache Officer"
+              className="h-8 rounded-full"
+              loading="eager"
+              onError={(e) => {
+                console.error("Logo image failed to load, trying fallback");
+                const target = e.target as HTMLImageElement;
+                target.src = "/lovable-uploads/image-6";
+              }}
+            />
           </Link>
 
           {/* Desktop Navigation */}

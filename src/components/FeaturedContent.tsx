@@ -57,7 +57,7 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
 
   // Get a local fallback image based on index
   const getFallbackImage = (index: number): string => {
-    const imageIndex = (index % 8) + 1;
+    const imageIndex = (index % 8) + 3; // Start from 3 to avoid using image-1 and image-2
     return `/lovable-uploads/image-${imageIndex}`;
   };
 
@@ -81,37 +81,23 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
               </Link>
             </div>
             <div className="space-y-8">
-              {featuredPosts.map((post, index) => (
+              {featuredPosts.map((post, index) => {
+                const fallbackImg = getFallbackImage(index);
+                return (
                 <div key={post.id} className="border-b border-gray-200 pb-6 last:border-b-0">
-                  {post.imageUrl && (
-                    <div className="mb-4 overflow-hidden rounded-lg">
-                      {loadedImages[post.id] ? (
-                        <img 
-                          src={post.imageUrl} 
-                          alt={post.title} 
-                          className="w-full h-48 object-cover hover:scale-105 transition-transform"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-48 bg-gray-200 animate-pulse flex items-center justify-center">
-                          <img 
-                            src={getFallbackImage(index)}
-                            alt={post.title}
-                            className="opacity-0 absolute"
-                            onLoad={() => {
-                              setLoadedImages(prev => ({
-                                ...prev,
-                                [post.id]: true
-                              }));
-                            }}
-                            onError={() => {
-                              console.log(`Using fallback image for post: ${post.title}`);
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <div className="mb-4 overflow-hidden rounded-lg">
+                    <img 
+                      src={post.imageUrl || fallbackImg} 
+                      alt={post.title} 
+                      className="w-full h-48 object-cover hover:scale-105 transition-transform"
+                      loading="lazy"
+                      onError={(e) => {
+                        console.log(`Using fallback image for post: ${post.title}`);
+                        const target = e.target as HTMLImageElement;
+                        target.src = fallbackImg;
+                      }}
+                    />
+                  </div>
                   <h4 className="text-xl font-semibold mb-2">{post.title}</h4>
                   <p className="text-sm text-gray-500 mb-2">{post.date}</p>
                   <p className="text-gray-700 mb-3">{post.excerpt}</p>
@@ -124,7 +110,7 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                     Read More <ExternalLink size={16} className="ml-1" />
                   </a>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
 
@@ -137,10 +123,12 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
               </Link>
             </div>
             <div className="space-y-6">
-              {featuredVideos.map((video, index) => (
+              {featuredVideos.map((video, index) => {
+                const fallbackImg = getFallbackImage(index);
+                return (
                 <div key={video.id} className="overflow-hidden rounded-lg shadow-md">
                   <div className="aspect-video w-full">
-                    {video.videoId && !failedVideos[video.videoId] ? (
+                    {video.videoId ? (
                       <iframe
                         src={`https://www.youtube.com/embed/${video.videoId}`}
                         title={video.title}
@@ -154,7 +142,7 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                       <div 
                         className="bg-gray-200 w-full h-full flex items-center justify-center relative"
                         style={{
-                          backgroundImage: video.thumbnailUrl ? `url(${video.thumbnailUrl})` : `url(${getFallbackImage(index)})`,
+                          backgroundImage: `url(${video.thumbnailUrl || fallbackImg})`,
                           backgroundSize: 'cover',
                           backgroundPosition: 'center'
                         }}
@@ -178,7 +166,7 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                     </a>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         </div>

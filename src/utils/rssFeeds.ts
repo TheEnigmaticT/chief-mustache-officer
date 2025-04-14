@@ -45,7 +45,8 @@ const extractYouTubeId = (url: string): string => {
 
 // Get a local image based on index
 const getLocalImage = (index: number): string => {
-  const imageIndex = (index % 8) + 1;
+  // Start from image-3 to avoid using potentially problematic images
+  const imageIndex = (index % 6) + 3;
   return `/lovable-uploads/image-${imageIndex}`;
 };
 
@@ -128,15 +129,24 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
     
     const videos: Video[] = data.items.map((item: any, index: number) => {
       // Extract video ID using multiple fallback methods
-      const videoId = extractYouTubeId(item.link);
-      const finalVideoId = videoId || mockVideos[index % mockVideos.length].videoId;
+      let videoId = '';
+      
+      if (item.link) {
+        videoId = extractYouTubeId(item.link);
+      }
+      
+      // If we couldn't extract an ID, use a known working one from our mock data
+      if (!videoId) {
+        console.log(`Could not extract video ID for ${item.title}. Using fallback.`);
+        videoId = ['dQw4w9WgXcQ', '9bZkp7q19f0', 'jNQXAC9IVRw'][index % 3];
+      }
       
       return {
         id: `video-${index}`,
         title: item.title || `Video ${index}`,
-        thumbnailUrl: item.thumbnail || `https://i.ytimg.com/vi/${finalVideoId}/hqdefault.jpg`,
-        videoUrl: item.link || `https://www.youtube.com/watch?v=${finalVideoId}`,
-        videoId: finalVideoId,
+        thumbnailUrl: item.thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+        videoUrl: item.link || `https://www.youtube.com/watch?v=${videoId}`,
+        videoId: videoId,
         date: item.pubDate ? new Date(item.pubDate).toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',

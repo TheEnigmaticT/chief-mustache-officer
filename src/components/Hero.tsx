@@ -8,8 +8,8 @@ const Hero = () => {
   const [imageError, setImageError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   
-  // Use local image paths to avoid CORS issues
-  const heroImagePath = imageError ? "/lovable-uploads/image-2" : "/lovable-uploads/image-1";
+  // Use image-2 directly as the primary image since image-1 isn't working
+  const heroImagePath = "/lovable-uploads/image-2";
   
   // Preload the hero image
   useEffect(() => {
