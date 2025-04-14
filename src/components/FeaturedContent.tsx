@@ -1,6 +1,7 @@
 
 import { ExternalLink, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 
 interface BlogPost {
   id: string;
@@ -26,6 +27,23 @@ interface FeaturedContentProps {
 }
 
 const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps) => {
+  // Track which videos failed to load
+  const [failedVideos, setFailedVideos] = useState<Record<string, boolean>>({});
+
+  const handleVideoError = (videoId: string) => {
+    console.log(`Video failed to load: ${videoId}`);
+    setFailedVideos(prev => ({
+      ...prev,
+      [videoId]: true
+    }));
+  };
+
+  // Get a local fallback image based on index
+  const getFallbackImage = (index: number): string => {
+    const imageIndex = (index % 8) + 1;
+    return `/lovable-uploads/image-${imageIndex}`;
+  };
+
   return (
     <section id="content" className="section bg-white">
       <div className="container mx-auto">
@@ -46,7 +64,7 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
               </Link>
             </div>
             <div className="space-y-8">
-              {featuredPosts.map((post) => (
+              {featuredPosts.map((post, index) => (
                 <div key={post.id} className="border-b border-gray-200 pb-6 last:border-b-0">
                   {post.imageUrl && (
                     <div className="mb-4 overflow-hidden rounded-lg">
@@ -58,8 +76,8 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                           const target = e.target as HTMLImageElement;
                           target.onerror = null;
                           // Use a local fallback image
-                          const index = parseInt(post.id.split('-')[1] || '0', 10);
-                          target.src = `/lovable-uploads/image-${(index % 8) + 1}`;
+                          target.src = getFallbackImage(index);
+                          console.log(`Using fallback image for post: ${post.title}`);
                         }}
                       />
                     </div>
@@ -89,20 +107,27 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
               </Link>
             </div>
             <div className="space-y-6">
-              {featuredVideos.map((video) => (
+              {featuredVideos.map((video, index) => (
                 <div key={video.id} className="overflow-hidden rounded-lg shadow-md">
                   <div className="aspect-video w-full">
-                    {video.videoId ? (
+                    {video.videoId && !failedVideos[video.videoId] ? (
                       <iframe
                         src={`https://www.youtube.com/embed/${video.videoId}`}
                         title={video.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                         className="w-full h-full"
+                        onError={() => handleVideoError(video.videoId)}
+                        loading="lazy"
                       ></iframe>
                     ) : (
-                      <div className="bg-gray-200 w-full h-full flex items-center justify-center">
-                        <Youtube className="text-gray-400" size={48} />
+                      <div 
+                        className="bg-gray-200 w-full h-full flex items-center justify-center relative"
+                        style={{backgroundImage: `url(${video.thumbnailUrl || getFallbackImage(index)})`, backgroundSize: 'cover', backgroundPosition: 'center'}}
+                      >
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                          <Youtube className="text-white" size={48} />
+                        </div>
                       </div>
                     )}
                   </div>

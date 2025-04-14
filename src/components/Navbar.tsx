@@ -20,6 +20,11 @@ const Navbar = () => {
               src="/lovable-uploads/image-1" 
               alt="Chief Mustache Officer"
               className="h-8 rounded-full"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.onerror = null;
+                console.error("Failed to load logo image");
+              }}
             />
           </Link>
 
