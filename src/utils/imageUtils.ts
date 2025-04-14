@@ -136,10 +136,59 @@ export const getCorrectImagePath = async (path: string): Promise<string> => {
 };
 
 /**
- * React component for images with robust fallback handling
+ * Extract OpenGraph image from HTML content
  */
+export const extractOpenGraphImage = (content: string): string | null => {
+  if (!content) return null;
+  
+  // Look for Open Graph image meta tag
+  const ogMatch = content.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i);
+  if (ogMatch && ogMatch[1]) {
+    debugLog('Found Open Graph image:', ogMatch[1]);
+    return ogMatch[1];
+  }
+  
+  // Look for any image in the content as fallback
+  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (imgMatch && imgMatch[1]) {
+    debugLog('Found image in content:', imgMatch[1]);
+    return imgMatch[1];
+  }
+  
+  return null;
+};
+
+// Simplified version of extractYouTubeId from URL
+export const extractYouTubeId = (url: string): string => {
+  if (!url) return '';
+  
+  // Match various YouTube URL formats
+  const regexPatterns = [
+    /(?:youtube\.com\/(?:[^\/\n\s]+\/\s*[^\/\n\s]+\/\s*(?:watch\?(?:\S*?&)?v=)|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    /^[a-zA-Z0-9_-]{11}$/ // Direct video ID
+  ];
+  
+  for (const regex of regexPatterns) {
+    const match = url.match(regex);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  
+  // Check if the URL itself is a valid YouTube ID (11 characters)
+  if (url.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(url)) {
+    return url;
+  }
+  
+  return '';
+};
+
+// Import React at the top separately
 import React, { useState, useEffect } from 'react';
 
+/**
+ * React component for images with robust fallback handling
+ */
 export const RobustImage: React.FC<{
   src: string;
   alt: string;
@@ -187,7 +236,7 @@ export const RobustImage: React.FC<{
     };
     
     loadImage();
-  }, [src, attempt, fallbacks]);
+  }, [src, attempt, fallbacks, triedPaths]);
   
   const handleError = () => {
     debugLog('Image error, trying next fallback');
@@ -216,50 +265,4 @@ export const RobustImage: React.FC<{
       />
     </>
   );
-};
-
-// Extract OpenGraph image from HTML content
-export const extractOpenGraphImage = (content: string): string | null => {
-  if (!content) return null;
-  
-  // Look for Open Graph image meta tag
-  const ogMatch = content.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i);
-  if (ogMatch && ogMatch[1]) {
-    debugLog('Found Open Graph image:', ogMatch[1]);
-    return ogMatch[1];
-  }
-  
-  // Look for any image in the content as fallback
-  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (imgMatch && imgMatch[1]) {
-    debugLog('Found image in content:', imgMatch[1]);
-    return imgMatch[1];
-  }
-  
-  return null;
-};
-
-// Simplified version of extractYouTubeId from URL
-export const extractYouTubeId = (url: string): string => {
-  if (!url) return '';
-  
-  // Match various YouTube URL formats
-  const regexPatterns = [
-    /(?:youtube\.com\/(?:[^\/\n\s]+\/\s*[^\/\n\s]+\/\s*(?:watch\?(?:\S*?&)?v=)|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-    /^[a-zA-Z0-9_-]{11}$/ // Direct video ID
-  ];
-  
-  for (const regex of regexPatterns) {
-    const match = url.match(regex);
-    if (match && match[1]) {
-      return match[1];
-    }
-  }
-  
-  // Check if the URL itself is a valid YouTube ID (11 characters)
-  if (url.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(url)) {
-    return url;
-  }
-  
-  return '';
 };
