@@ -6,14 +6,6 @@ import RobustImage from './RobustImage';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Define multiple logo paths to try with updated paths
-  const logoPaths = [
-    "/img/image-6",
-    "/img/image-3",
-    "/img/image-2",
-    "/img/image-8"
-  ];
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -25,7 +17,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <RobustImage 
-              src={logoPaths[0]}
+              src="/img/ChiefMustacheOfficer_Logo_Horizontal.png"
               fallbacks={logoPaths.slice(1)}
               alt="Chief Mustache Officer"
               className="h-8 w-8 rounded-full object-cover"
