@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { ExternalLink, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import RobustImage from './RobustImage';
 
 interface BlogPost {
   id: string;
@@ -25,50 +27,21 @@ interface FeaturedContentProps {
   featuredVideos: Video[];
 }
 
-// Helper function to add file extension if missing
-const ensureImageExtension = (path: string): string => {
-  if (!path) return '';
-  if (path.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) return path;
-  return `${path}.png`; // Add default extension
-};
-
-const getFallbackImage = (index: number): string => {
-  const imageIndex = (index % 6) + 3; // Use image-3 through image-8
-  return `/lovable-uploads/image-${imageIndex}`; // Don't add extension here, we'll add it when needed
-};
-
 // Helper function to determine if a video is a YouTube Short
 const isYouTubeShort = (videoId: string): boolean => {
   // This is a simplistic check - in a real app you might want a more robust mechanism
   // Shorts are typically in vertical format, but the videoId format is the same
   return videoId.length === 11; // All YouTube video IDs are 11 characters
-};
+}
 
 const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps) => {
   const [failedVideos, setFailedVideos] = useState<Record<string, boolean>>({});
-  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    // Preload images with better error handling
-    featuredPosts.forEach(post => {
-      if (post.imageUrl) {
-        const img = new Image();
-        img.src = ensureImageExtension(post.imageUrl);
-        img.onload = () => {
-          setLoadedImages(prev => ({
-            ...prev,
-            [post.id]: true
-          }));
-        };
-        img.onerror = () => {
-          // If the image fails to load, try with a fallback
-          console.log(`Image failed to load for post ${post.title}, trying fallback`);
-          const fallbackPath = getFallbackImage(parseInt(post.id.replace(/\D/g, '')) || 0);
-          img.src = ensureImageExtension(fallbackPath);
-        };
-      }
-    });
-  }, [featuredPosts]);
+  // Get a fallback image based on index
+  const getFallbackImage = (index: number): string => {
+    const imageNum = (index % 7) + 2; // Use image-2 through image-8
+    return `/lovable-uploads/image-${imageNum}`;
+  };
 
   if (!featuredPosts.length && !featuredVideos.length) {
     return (
@@ -102,27 +75,22 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
             </div>
             <div className="space-y-8">
               {featuredPosts.map((post, index) => {
-                const fallbackImg = getFallbackImage(index);
+                const fallbacks = [
+                  getFallbackImage(index),
+                  getFallbackImage(index) + '.png',
+                  getFallbackImage((index + 1) % 7 + 2),
+                  '/placeholder.svg'
+                ];
+                
                 return (
                   <div key={post.id} className="border-b border-gray-200 pb-6 last:border-b-0">
                     <div className="mb-4 overflow-hidden rounded-lg">
-                      <img 
-                        src={post.imageUrl ? ensureImageExtension(post.imageUrl) : ensureImageExtension(fallbackImg)} 
+                      <RobustImage 
+                        src={post.imageUrl || fallbacks[0]}
+                        fallbacks={fallbacks}
                         alt={post.title} 
                         className="w-full h-48 object-cover hover:scale-105 transition-transform"
-                        loading="lazy"
-                        onError={(e) => {
-                          console.log(`Using fallback image for post: ${post.title}`);
-                          const target = e.target as HTMLImageElement;
-                          
-                          // Try adding extension if not already present
-                          if (!target.src.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
-                            target.src = ensureImageExtension(post.imageUrl || fallbackImg);
-                          } else {
-                            // If that didn't work, use fallback
-                            target.src = ensureImageExtension(fallbackImg);
-                          }
-                        }}
+                        height="192px"
                       />
                     </div>
                     <h4 className="text-xl font-semibold mb-2">{post.title}</h4>
@@ -152,7 +120,13 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
             </div>
             <div className="space-y-6">
               {featuredVideos.map((video, index) => {
-                const fallbackImg = getFallbackImage(index);
+                const fallbacks = [
+                  getFallbackImage(index),
+                  getFallbackImage(index) + '.png',
+                  getFallbackImage((index + 1) % 7 + 2),
+                  '/placeholder.svg'
+                ];
+                
                 const isShort = isYouTubeShort(video.videoId);
                 
                 return (
@@ -175,14 +149,13 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                           }}
                         ></iframe>
                       ) : (
-                        <div 
-                          className="bg-gray-200 w-full h-full flex items-center justify-center relative"
-                          style={{
-                            backgroundImage: `url(${ensureImageExtension(video.thumbnailUrl || fallbackImg)})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center'
-                          }}
-                        >
+                        <div className="relative w-full h-full">
+                          <RobustImage
+                            src={video.thumbnailUrl || fallbacks[0]}
+                            fallbacks={fallbacks}
+                            alt={video.title}
+                            className="w-full h-full object-cover"
+                          />
                           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                             <Youtube className="text-white" size={48} />
                           </div>

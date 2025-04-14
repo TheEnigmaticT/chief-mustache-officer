@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import RobustImage from './RobustImage';
 
 const Hero = () => {
-  // Define multiple image paths to try
+  // Define multiple image paths to try - with simpler paths
   const possibleImagePaths = [
     "/lovable-uploads/image-2",
     "/lovable-uploads/image-2.png",

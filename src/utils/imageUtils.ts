@@ -5,7 +5,7 @@ const DEBUG = true;
 /**
  * Logs debug information if debug mode is enabled
  */
-const debugLog = (message: string, ...args: any[]) => {
+export const debugLog = (message: string, ...args: any[]) => {
   if (DEBUG) {
     console.log(`[ImageDebug] ${message}`, ...args);
   }
@@ -42,7 +42,7 @@ export const checkImageUrl = (url: string): Promise<boolean> => {
 };
 
 /**
- * Gets the correct image path with multiple fallback options
+ * Gets the correct image path with simplified fallback options
  * @param path - Original image path
  */
 export const getCorrectImagePath = async (path: string): Promise<string> => {
@@ -56,75 +56,49 @@ export const getCorrectImagePath = async (path: string): Promise<string> => {
     if (exists) {
       return path;
     }
-    debugLog('Remote URL failed, trying fallbacks');
-  } else {
-    // For local paths, check if they already have an extension
-    const hasExtension = /\.(png|jpe?g|gif|svg|webp)$/i.test(path);
+  } 
+  
+  // SIMPLIFIED APPROACH: First try the path as-is
+  const pathAsIs = await checkImageUrl(path);
+  if (pathAsIs) {
+    debugLog('Path works as-is:', path);
+    return path;
+  }
+  
+  // Then try with key extensions directly
+  const extensions = ['.png', '.jpg', '.webp'];
+  for (const ext of extensions) {
+    // Skip if the path already has this extension
+    if (path.toLowerCase().endsWith(ext.toLowerCase())) continue;
     
-    // If path already has extension, try it directly first
-    if (hasExtension) {
-      const exists = await checkImageUrl(path);
-      if (exists) {
-        debugLog('Path works as-is:', path);
-        return path;
-      }
+    const pathWithExt = `${path}${ext}`;
+    debugLog('Testing with extension:', pathWithExt);
+    
+    const exists = await checkImageUrl(pathWithExt);
+    if (exists) {
+      debugLog('Found working path with extension:', pathWithExt);
+      return pathWithExt;
     }
   }
   
-  // List of possible extensions to try
-  const extensions = ['', '.png', '.jpg', '.jpeg', '.webp', '.svg'];
-  
-  // List of possible base paths
-  const basePaths = [
-    '', // Original path as-is
-    '/',
-    '/lovable-uploads/',
-    '/public/',
-    '/assets/',
-    '/images/'
-  ];
-  
-  // Try each combination
-  for (const basePath of basePaths) {
-    for (const ext of extensions) {
-      // Skip if the path already has this extension
-      if (ext && path.toLowerCase().endsWith(ext.toLowerCase())) continue;
-      
-      // Strip leading slash from path if basePath has a trailing slash
-      let pathWithoutLeadingSlash = path.replace(/^\/+/, '');
-      
-      // Create test path
-      const testPath = `${basePath}${pathWithoutLeadingSlash}${ext}`;
-      
-      debugLog('Testing path:', testPath);
-      
-      // Check if this path works
-      const exists = await checkImageUrl(testPath);
-      if (exists) {
-        debugLog('Found working path:', testPath);
-        return testPath;
-      }
-    }
+  // Try the most common location for this app
+  const lovablePath = `/lovable-uploads/${path.split('/').pop()}`;
+  debugLog('Testing lovable path:', lovablePath);
+  const lovableExists = await checkImageUrl(lovablePath);
+  if (lovableExists) {
+    debugLog('Found working lovable path:', lovablePath);
+    return lovablePath;
   }
   
-  // If we still don't have a working image path, try with numeric suffixes
-  // This handles cases where we might have image-2.png, image-3.png, etc.
-  const matches = path.match(/^(.*?)(\d+)$/);
-  if (matches) {
-    const base = matches[1];
-    const num = parseInt(matches[2]);
+  // Try with extensions on the lovable path
+  for (const ext of extensions) {
+    const lovablePathWithExt = `${lovablePath}${ext}`;
+    debugLog('Testing lovable path with extension:', lovablePathWithExt);
     
-    // Try a few number variations
-    for (let i = 2; i <= 8; i++) {
-      if (i === num) continue; // Skip the original number
-      
-      const alternatePath = `${base}${i}`;
-      debugLog('Trying alternate numbered path:', alternatePath);
-      
-      const result = await getCorrectImagePath(alternatePath);
-      if (result !== '/placeholder.svg') {
-        return result;
-      }
+    const exists = await checkImageUrl(lovablePathWithExt);
+    if (exists) {
+      debugLog('Found working lovable path with extension:', lovablePathWithExt);
+      return lovablePathWithExt;
     }
   }
   
@@ -180,6 +154,3 @@ export const extractYouTubeId = (url: string): string => {
   
   return '';
 };
-
-// Export the debugLog function
-export { debugLog };
