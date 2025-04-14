@@ -25,9 +25,23 @@ interface FeaturedContentProps {
   featuredVideos: Video[];
 }
 
+// Helper function to add file extension if missing
+const ensureImageExtension = (path: string): string => {
+  if (!path) return '';
+  if (path.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) return path;
+  return `${path}.png`; // Add default extension
+};
+
 const getFallbackImage = (index: number): string => {
-  const imageIndex = (index % 8) + 3; // Start from 3 to avoid using image-1 and image-2
-  return `/lovable-uploads/image-${imageIndex}.png`; // Add the correct file extension
+  const imageIndex = (index % 6) + 3; // Use image-3 through image-8
+  return `/lovable-uploads/image-${imageIndex}`; // Don't add extension here, we'll add it when needed
+};
+
+// Helper function to determine if a video is a YouTube Short
+const isYouTubeShort = (videoId: string): boolean => {
+  // This is a simplistic check - in a real app you might want a more robust mechanism
+  // Shorts are typically in vertical format, but the videoId format is the same
+  return videoId.length === 11; // All YouTube video IDs are 11 characters
 };
 
 const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps) => {
@@ -35,16 +49,22 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    // Preload images
+    // Preload images with better error handling
     featuredPosts.forEach(post => {
       if (post.imageUrl) {
         const img = new Image();
-        img.src = post.imageUrl;
+        img.src = ensureImageExtension(post.imageUrl);
         img.onload = () => {
           setLoadedImages(prev => ({
             ...prev,
             [post.id]: true
           }));
+        };
+        img.onerror = () => {
+          // If the image fails to load, try with a fallback
+          console.log(`Image failed to load for post ${post.title}, trying fallback`);
+          const fallbackPath = getFallbackImage(parseInt(post.id.replace(/\D/g, '')) || 0);
+          img.src = ensureImageExtension(fallbackPath);
         };
       }
     });
@@ -87,14 +107,21 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                   <div key={post.id} className="border-b border-gray-200 pb-6 last:border-b-0">
                     <div className="mb-4 overflow-hidden rounded-lg">
                       <img 
-                        src={post.imageUrl || fallbackImg} 
+                        src={post.imageUrl ? ensureImageExtension(post.imageUrl) : ensureImageExtension(fallbackImg)} 
                         alt={post.title} 
                         className="w-full h-48 object-cover hover:scale-105 transition-transform"
                         loading="lazy"
                         onError={(e) => {
                           console.log(`Using fallback image for post: ${post.title}`);
                           const target = e.target as HTMLImageElement;
-                          target.src = fallbackImg;
+                          
+                          // Try adding extension if not already present
+                          if (!target.src.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
+                            target.src = ensureImageExtension(post.imageUrl || fallbackImg);
+                          } else {
+                            // If that didn't work, use fallback
+                            target.src = ensureImageExtension(fallbackImg);
+                          }
                         }}
                       />
                     </div>
@@ -126,23 +153,32 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
             <div className="space-y-6">
               {featuredVideos.map((video, index) => {
                 const fallbackImg = getFallbackImage(index);
+                const isShort = isYouTubeShort(video.videoId);
+                
                 return (
                   <div key={video.id} className="overflow-hidden rounded-lg shadow-md">
-                    <div className="aspect-video w-full">
-                      {video.videoId ? (
+                    <div className={`${isShort ? 'aspect-[9/16]' : 'aspect-video'} w-full`}>
+                      {video.videoId && !failedVideos[video.id] ? (
                         <iframe
-                          src={`https://www.youtube.com/embed/${video.videoId}`}
+                          src={`https://www.youtube.com/embed/${video.videoId}?rel=0${isShort ? '&loop=1' : ''}`}
                           title={video.title}
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                           className="w-full h-full"
                           loading="lazy"
+                          onError={() => {
+                            console.error(`Failed to load video: ${video.title}`);
+                            setFailedVideos(prev => ({
+                              ...prev,
+                              [video.id]: true
+                            }));
+                          }}
                         ></iframe>
                       ) : (
                         <div 
                           className="bg-gray-200 w-full h-full flex items-center justify-center relative"
                           style={{
-                            backgroundImage: `url(${video.thumbnailUrl || fallbackImg})`,
+                            backgroundImage: `url(${ensureImageExtension(video.thumbnailUrl || fallbackImg)})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                           }}

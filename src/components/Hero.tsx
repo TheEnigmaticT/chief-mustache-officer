@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { ArrowDownCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -8,8 +7,9 @@ const Hero = () => {
   const [imageError, setImageError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   
-  // Use image-2 directly as the primary image since image-1 isn't working
-  const heroImagePath = "/lovable-uploads/image-2";
+  // Change to include file extension and use a more reliable path
+  const heroImagePath = "/lovable-uploads/image-2.png";
+  const fallbackImagePath = "/lovable-uploads/image-3.png";
   
   // Preload the hero image
   useEffect(() => {
@@ -31,6 +31,8 @@ const Hero = () => {
     img.onerror = () => {
       console.error("Failed to load hero image:", heroImagePath);
       setImageError(true);
+      // Try loading fallback image
+      img.src = fallbackImagePath;
     };
     
     // Check if image is already cached
@@ -78,6 +80,12 @@ const Hero = () => {
                 alt="Trevor Longino" 
                 className="rounded-lg shadow-xl w-full max-w-sm object-cover"
                 loading="eager"
+                onError={(e) => {
+                  console.error("Hero image failed to load at render time");
+                  const target = e.target as HTMLImageElement;
+                  setImageError(true);
+                  target.src = fallbackImagePath;
+                }}
               />
             ) : (
               <div className="rounded-lg shadow-xl w-full max-w-sm h-80 bg-gray-300 animate-pulse flex items-center justify-center">
@@ -87,7 +95,12 @@ const Hero = () => {
                   alt="Trevor Longino"
                   className="opacity-0 absolute"
                   onLoad={() => setImageLoaded(true)}
-                  onError={() => setImageError(true)}
+                  onError={(e) => {
+                    setImageError(true);
+                    const target = e.target as HTMLImageElement;
+                    console.error("Initial hero image load failed, trying fallback");
+                    target.src = fallbackImagePath;
+                  }}
                 />
                 {imageError && <span className="text-gray-600">Loading image...</span>}
               </div>

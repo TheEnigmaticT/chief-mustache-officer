@@ -8,8 +8,11 @@ const Navbar = () => {
   const [logoError, setLogoError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // Use a different image for the logo to avoid previous issues
-  const logoImagePath = "http://chiefmustacheofficer.com/images/ChiefMustacheOfficer_Logo_Horizontal.png";
+  // Changed from external HTTP URL to a local file path
+  // This avoids mixed content issues and cross-origin problems
+  const logoImagePath = "/lovable-uploads/image-6.png";
+  const fallbackLogoPath = "/lovable-uploads/image-3.png";
+  const secondFallbackPath = "/lovable-uploads/image-2.png";
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -31,6 +34,8 @@ const Navbar = () => {
     img.onerror = () => {
       console.error("Failed to load logo image:", logoImagePath);
       setLogoError(true);
+      // Try fallback
+      img.src = fallbackLogoPath;
     };
 
     return () => {
@@ -54,7 +59,11 @@ const Navbar = () => {
               onError={(e) => {
                 console.error("Logo image failed to load, trying fallback");
                 const target = e.target as HTMLImageElement;
-                target.src = "/lovable-uploads/image-6.png"; // Add the correct file extension
+                if (target.src.includes(logoImagePath)) {
+                  target.src = fallbackLogoPath;
+                } else if (target.src.includes(fallbackLogoPath)) {
+                  target.src = secondFallbackPath;
+                }
               }}
             />
           </Link>
