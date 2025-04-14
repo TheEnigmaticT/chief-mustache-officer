@@ -19,7 +19,7 @@ const Navbar = () => {
             <img 
               src="/lovable-uploads/image-1" 
               alt="Chief Mustache Officer"
-              className="h-8"
+              className="h-8 rounded-full"
             />
           </Link>
 

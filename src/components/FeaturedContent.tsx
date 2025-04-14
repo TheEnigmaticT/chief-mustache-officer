@@ -57,7 +57,9 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.onerror = null;
-                          target.style.display = 'none';
+                          // Use a local fallback image
+                          const index = parseInt(post.id.split('-')[1] || '0', 10);
+                          target.src = `/lovable-uploads/image-${(index % 8) + 1}`;
                         }}
                       />
                     </div>
@@ -107,6 +109,14 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                   <div className="p-4">
                     <h4 className="font-medium text-navy">{video.title}</h4>
                     <p className="text-sm text-gray-500 mt-1">{video.date}</p>
+                    <a 
+                      href={video.videoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-mustache hover:text-mustache-light font-medium mt-2"
+                    >
+                      Watch on YouTube <ExternalLink size={16} className="ml-1" />
+                    </a>
                   </div>
                 </div>
               ))}
