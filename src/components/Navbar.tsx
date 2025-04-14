@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import RobustImage from './RobustImage';
@@ -7,12 +6,12 @@ import RobustImage from './RobustImage';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Define multiple logo paths to try
+  // Define multiple logo paths to try with updated paths
   const logoPaths = [
-    "/lovable-uploads/image-6",
-    "/lovable-uploads/image-3",
-    "/lovable-uploads/image-2",
-    "/lovable-uploads/image-8"
+    "/img/image-6",
+    "/img/image-3",
+    "/img/image-2",
+    "/img/image-8"
   ];
 
   const toggleMenu = () => {

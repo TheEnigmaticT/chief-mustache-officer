@@ -21,7 +21,7 @@ const mockBlogPosts: BlogPost[] = [
     excerpt: 'Learn the key strategies I used to build marketing systems that consistently deliver results for startups.',
     url: 'https://crowdtamers.com/million-dollar-marketing',
     date: '2025-03-15',
-    imageUrl: '/lovable-uploads/image-2'
+    imageUrl: '/img/image-2'
   },
   {
     id: '2',
@@ -29,7 +29,7 @@ const mockBlogPosts: BlogPost[] = [
     excerpt: 'Before you build anything, you need to validate your idea. Here\'s my proven framework for effective validation.',
     url: 'https://crowdtamers.com/validation-framework',
     date: '2025-02-28',
-    imageUrl: '/lovable-uploads/image-3'
+    imageUrl: '/img/image-3'
   },
   {
     id: '3',
@@ -37,7 +37,7 @@ const mockBlogPosts: BlogPost[] = [
     excerpt: 'After launching 130+ startups, these are the GTM strategies I\'ve found to be consistently effective.',
     url: 'https://crowdtamers.com/gtm-strategies',
     date: '2025-01-20',
-    imageUrl: '/lovable-uploads/image-6'
+    imageUrl: '/img/image-6'
   }
 ];
 
@@ -45,7 +45,7 @@ const mockVideos: Video[] = [
   {
     id: '1',
     title: 'Marketing Minute: Customer Acquisition Cost',
-    thumbnailUrl: '/lovable-uploads/image-7',
+    thumbnailUrl: '/img/image-7',
     videoUrl: 'https://www.youtube.com/watch?v=example1',
     videoId: 'dQw4w9WgXcQ',
     date: '2025-03-10'
@@ -53,7 +53,7 @@ const mockVideos: Video[] = [
   {
     id: '2',
     title: 'Marketing Minute: Value Proposition Design',
-    thumbnailUrl: '/lovable-uploads/image-8',
+    thumbnailUrl: '/img/image-8',
     videoUrl: 'https://www.youtube.com/watch?v=example2',
     videoId: '9bZkp7q19f0',
     date: '2025-02-25'
@@ -61,7 +61,7 @@ const mockVideos: Video[] = [
   {
     id: '3',
     title: 'Marketing Minute: Positioning Strategy',
-    thumbnailUrl: '/lovable-uploads/image-2',
+    thumbnailUrl: '/img/image-2',
     videoUrl: 'https://www.youtube.com/watch?v=example3',
     videoId: 'jNQXAC9IVRw',
     date: '2025-02-15'
@@ -69,7 +69,7 @@ const mockVideos: Video[] = [
   {
     id: '4',
     title: 'Marketing Minute: Customer Journey Mapping',
-    thumbnailUrl: '/lovable-uploads/image-3',
+    thumbnailUrl: '/img/image-3',
     videoUrl: 'https://www.youtube.com/watch?v=example4',
     videoId: 'Y-P0Hs0ADJY',
     date: '2025-02-05'

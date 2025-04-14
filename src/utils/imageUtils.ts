@@ -58,7 +58,18 @@ export const getCorrectImagePath = async (path: string): Promise<string> => {
     }
   } 
   
-  // SIMPLIFIED APPROACH: First try the path as-is
+  // First, try to adapt any old /lovable-uploads paths to new /img paths
+  if (path.includes('/lovable-uploads/')) {
+    const newPath = path.replace('/lovable-uploads/', '/img/');
+    debugLog('Converted old path to new path:', newPath);
+    
+    const exists = await checkImageUrl(newPath);
+    if (exists) {
+      return newPath;
+    }
+  }
+  
+  // Try path as-is
   const pathAsIs = await checkImageUrl(path);
   if (pathAsIs) {
     debugLog('Path works as-is:', path);
@@ -82,23 +93,23 @@ export const getCorrectImagePath = async (path: string): Promise<string> => {
   }
   
   // Try the most common location for this app
-  const lovablePath = `/lovable-uploads/${path.split('/').pop()}`;
-  debugLog('Testing lovable path:', lovablePath);
-  const lovableExists = await checkImageUrl(lovablePath);
-  if (lovableExists) {
-    debugLog('Found working lovable path:', lovablePath);
-    return lovablePath;
+  const imgPath = `/img/${path.split('/').pop()}`;
+  debugLog('Testing img path:', imgPath);
+  const imgExists = await checkImageUrl(imgPath);
+  if (imgExists) {
+    debugLog('Found working img path:', imgPath);
+    return imgPath;
   }
   
-  // Try with extensions on the lovable path
+  // Try with extensions on the img path
   for (const ext of extensions) {
-    const lovablePathWithExt = `${lovablePath}${ext}`;
-    debugLog('Testing lovable path with extension:', lovablePathWithExt);
+    const imgPathWithExt = `${imgPath}${ext}`;
+    debugLog('Testing img path with extension:', imgPathWithExt);
     
-    const exists = await checkImageUrl(lovablePathWithExt);
+    const exists = await checkImageUrl(imgPathWithExt);
     if (exists) {
-      debugLog('Found working lovable path with extension:', lovablePathWithExt);
-      return lovablePathWithExt;
+      debugLog('Found working img path with extension:', imgPathWithExt);
+      return imgPathWithExt;
     }
   }
   

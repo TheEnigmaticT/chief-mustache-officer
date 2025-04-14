@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ExternalLink, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import RobustImage from './RobustImage';
@@ -37,22 +36,11 @@ const isYouTubeShort = (videoId: string): boolean => {
 const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps) => {
   const [failedVideos, setFailedVideos] = useState<Record<string, boolean>>({});
 
-  // Get a fallback image based on index
+  // Get a fallback image based on index - updated paths
   const getFallbackImage = (index: number): string => {
     const imageNum = (index % 7) + 2; // Use image-2 through image-8
-    return `/lovable-uploads/image-${imageNum}`;
+    return `/img/image-${imageNum}`;
   };
-
-  if (!featuredPosts.length && !featuredVideos.length) {
-    return (
-      <section id="content" className="section bg-white">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold text-navy mb-4">No Content Available</h2>
-          <p className="text-lg text-gray-600">Please check back later for updates.</p>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section id="content" className="section bg-white">

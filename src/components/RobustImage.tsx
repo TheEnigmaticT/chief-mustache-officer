@@ -5,7 +5,7 @@ import { getCorrectImagePath, debugLog } from '../utils/imageUtils';
 /**
  * React component for images with robust fallback handling
  */
-export const RobustImage: React.FC<{
+const RobustImage: React.FC<{
   src: string;
   alt: string;
   className?: string;

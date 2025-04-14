@@ -1,17 +1,16 @@
 
-import { useState, useEffect, useRef } from 'react';
-import { ArrowDownCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ArrowDownCircle } from 'lucide-react';
 import RobustImage from './RobustImage';
 
 const Hero = () => {
-  // Define multiple image paths to try - with simpler paths
+  // Define multiple image paths to try - with updated paths
   const possibleImagePaths = [
-    "/lovable-uploads/image-2",
-    "/lovable-uploads/image-2.png",
-    "/lovable-uploads/image-3",
-    "/lovable-uploads/image-6",
-    "/lovable-uploads/image-8"
+    "/img/image-2",
+    "/img/image-2.png",
+    "/img/image-3",
+    "/img/image-6",
+    "/img/image-8"
   ];
   
   // Provide multiple fallbacks
