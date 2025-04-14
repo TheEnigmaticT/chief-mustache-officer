@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+        navy: {
+          DEFAULT: '#0A192F',
+          light: '#112240',
+          lighter: '#233554'
+        },
+        mustache: {
+          DEFAULT: '#BB8141',
+          light: '#D9A25E'
+        }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +94,21 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				fadeIn: {
+					'0%': { opacity: '0' },
+					'100%': { opacity: '1' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				fadeIn: 'fadeIn 0.5s ease-in-out'
+			},
+			fontFamily: {
+				sans: ['Inter', 'sans-serif'],
+				heading: ['Montserrat', 'sans-serif'],
+				mono: ['JetBrains Mono', 'monospace']
 			}
 		}
 	},
