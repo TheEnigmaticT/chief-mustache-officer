@@ -1,14 +1,30 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [logoLoaded, setLogoLoaded] = useState(false);
+  const [logoError, setLogoError] = useState(false);
+
+  // Logo image with fallback
+  const logoImageUrl = logoError ? "/lovable-uploads/image-1" : "/lovable-uploads/image-1";
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  // Preload the logo image
+  useEffect(() => {
+    const img = new Image();
+    img.src = logoImageUrl;
+    img.onload = () => setLogoLoaded(true);
+    img.onerror = () => {
+      console.error("Failed to load logo image");
+      setLogoError(true);
+    };
+  }, [logoImageUrl]);
 
   return (
     <header className="fixed w-full bg-white/90 backdrop-blur-sm z-50 shadow-sm">
@@ -16,16 +32,16 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img 
-              src="/lovable-uploads/image-1" 
-              alt="Chief Mustache Officer"
-              className="h-8 rounded-full"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.onerror = null;
-                console.error("Failed to load logo image");
-              }}
-            />
+            {logoLoaded ? (
+              <img 
+                src={logoImageUrl}
+                alt="Chief Mustache Officer"
+                className="h-8 rounded-full"
+                loading="eager"
+              />
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse"></div>
+            )}
           </Link>
 
           {/* Desktop Navigation */}

@@ -1,7 +1,7 @@
 
+import { useState, useEffect } from 'react';
 import { ExternalLink, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
 
 interface BlogPost {
   id: string;
@@ -29,6 +29,23 @@ interface FeaturedContentProps {
 const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps) => {
   // Track which videos failed to load
   const [failedVideos, setFailedVideos] = useState<Record<string, boolean>>({});
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    // Preload images
+    featuredPosts.forEach(post => {
+      if (post.imageUrl) {
+        const img = new Image();
+        img.src = post.imageUrl;
+        img.onload = () => {
+          setLoadedImages(prev => ({
+            ...prev,
+            [post.id]: true
+          }));
+        };
+      }
+    });
+  }, [featuredPosts]);
 
   const handleVideoError = (videoId: string) => {
     console.log(`Video failed to load: ${videoId}`);
@@ -68,18 +85,31 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                 <div key={post.id} className="border-b border-gray-200 pb-6 last:border-b-0">
                   {post.imageUrl && (
                     <div className="mb-4 overflow-hidden rounded-lg">
-                      <img 
-                        src={post.imageUrl} 
-                        alt={post.title} 
-                        className="w-full h-48 object-cover hover:scale-105 transition-transform"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.onerror = null;
-                          // Use a local fallback image
-                          target.src = getFallbackImage(index);
-                          console.log(`Using fallback image for post: ${post.title}`);
-                        }}
-                      />
+                      {loadedImages[post.id] ? (
+                        <img 
+                          src={post.imageUrl} 
+                          alt={post.title} 
+                          className="w-full h-48 object-cover hover:scale-105 transition-transform"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-48 bg-gray-200 animate-pulse flex items-center justify-center">
+                          <img 
+                            src={getFallbackImage(index)}
+                            alt={post.title}
+                            className="opacity-0 absolute"
+                            onLoad={() => {
+                              setLoadedImages(prev => ({
+                                ...prev,
+                                [post.id]: true
+                              }));
+                            }}
+                            onError={() => {
+                              console.log(`Using fallback image for post: ${post.title}`);
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
                   <h4 className="text-xl font-semibold mb-2">{post.title}</h4>
@@ -123,7 +153,11 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                     ) : (
                       <div 
                         className="bg-gray-200 w-full h-full flex items-center justify-center relative"
-                        style={{backgroundImage: `url(${video.thumbnailUrl || getFallbackImage(index)})`, backgroundSize: 'cover', backgroundPosition: 'center'}}
+                        style={{
+                          backgroundImage: video.thumbnailUrl ? `url(${video.thumbnailUrl})` : `url(${getFallbackImage(index)})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center'
+                        }}
                       >
                         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                           <Youtube className="text-white" size={48} />

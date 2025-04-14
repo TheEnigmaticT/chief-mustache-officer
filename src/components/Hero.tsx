@@ -1,8 +1,25 @@
 
+import { useState, useEffect } from 'react';
 import { ArrowDownCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Hero = () => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  const heroImageUrl = imageError ? "/lovable-uploads/image-2" : "/lovable-uploads/image-1";
+  
+  // Preload the hero image
+  useEffect(() => {
+    const img = new Image();
+    img.src = heroImageUrl;
+    img.onload = () => setImageLoaded(true);
+    img.onerror = () => {
+      console.error("Failed to load hero image");
+      setImageError(true);
+    };
+  }, [heroImageUrl]);
+
   return (
     <section className="pt-24 pb-16 md:py-32 bg-gradient-to-br from-navy to-navy-light">
       <div className="container mx-auto px-4 md:px-8">
@@ -28,11 +45,16 @@ const Hero = () => {
             </div>
           </div>
           <div className="order-1 md:order-2 flex justify-center md:justify-end animate-fadeIn">
-            <img 
-              src="/lovable-uploads/image-1" 
-              alt="Trevor Longino" 
-              className="rounded-lg shadow-xl w-full max-w-sm object-cover" 
-            />
+            {imageLoaded ? (
+              <img 
+                src={heroImageUrl} 
+                alt="Trevor Longino" 
+                className="rounded-lg shadow-xl w-full max-w-sm object-cover"
+                loading="eager"
+              />
+            ) : (
+              <div className="rounded-lg shadow-xl w-full max-w-sm h-80 bg-gray-300 animate-pulse"></div>
+            )}
           </div>
         </div>
 
