@@ -17,9 +17,14 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img 
-              src="http://chiefmustacheofficer.com/images/ChiefMustacheOfficer_Logo_Horizontal.png" 
+              src="/lovable-uploads/3192df8b-6ce4-4295-9f36-52d39c75bb9f.png" 
               alt="Chief Mustache Officer"
               className="h-8 mr-2"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.onerror = null;
+                target.src = "https://via.placeholder.com/160x40?text=CMO";
+              }}
             />
           </Link>
 

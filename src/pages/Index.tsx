@@ -12,6 +12,63 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+
+// Mock data to use when feeds fail to load
+const mockBlogPosts: BlogPost[] = [
+  {
+    id: '1',
+    title: 'How to Build a Million-Dollar Marketing Engine',
+    excerpt: 'Learn the key strategies I used to build marketing systems that consistently deliver results for startups.',
+    url: 'https://crowdtamers.com/million-dollar-marketing',
+    date: '2025-03-15'
+  },
+  {
+    id: '2',
+    title: 'The Validation Framework Every Startup Needs',
+    excerpt: 'Before you build anything, you need to validate your idea. Here\'s my proven framework for effective validation.',
+    url: 'https://crowdtamers.com/validation-framework',
+    date: '2025-02-28'
+  },
+  {
+    id: '3',
+    title: '5 Go-to-Market Strategies That Actually Work',
+    excerpt: 'After launching 130+ startups, these are the GTM strategies I\'ve found to be consistently effective.',
+    url: 'https://crowdtamers.com/gtm-strategies',
+    date: '2025-01-20'
+  }
+];
+
+const mockVideos: Video[] = [
+  {
+    id: '1',
+    title: 'Marketing Minute: Customer Acquisition Cost',
+    thumbnailUrl: 'https://via.placeholder.com/320x180?text=CAC+Video',
+    videoUrl: 'https://www.youtube.com/watch?v=example1',
+    date: '2025-03-10'
+  },
+  {
+    id: '2',
+    title: 'Marketing Minute: Value Proposition Design',
+    thumbnailUrl: 'https://via.placeholder.com/320x180?text=Value+Prop+Video',
+    videoUrl: 'https://www.youtube.com/watch?v=example2',
+    date: '2025-02-25'
+  },
+  {
+    id: '3',
+    title: 'Marketing Minute: Positioning Strategy',
+    thumbnailUrl: 'https://via.placeholder.com/320x180?text=Positioning+Video',
+    videoUrl: 'https://www.youtube.com/watch?v=example3',
+    date: '2025-02-15'
+  },
+  {
+    id: '4',
+    title: 'Marketing Minute: Customer Journey Mapping',
+    thumbnailUrl: 'https://via.placeholder.com/320x180?text=Customer+Journey+Video',
+    videoUrl: 'https://www.youtube.com/watch?v=example4',
+    date: '2025-02-05'
+  }
+];
 
 const Index = () => {
   const [displayedTestimonials, setDisplayedTestimonials] = useState(testimonials.slice(0, 3));
@@ -19,23 +76,44 @@ const Index = () => {
   const [featuredBlogPosts, setFeaturedBlogPosts] = useState<BlogPost[]>([]);
   const [featuredVideos, setFeaturedVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const loadContent = async () => {
       setIsLoading(true);
       try {
         const content = await loadFeaturedContent();
-        setFeaturedBlogPosts(content.featuredBlogPosts);
-        setFeaturedVideos(content.featuredVideos);
+        
+        // If we have valid content, use it; otherwise use mock data
+        if (content.featuredBlogPosts && content.featuredBlogPosts.length > 0) {
+          setFeaturedBlogPosts(content.featuredBlogPosts);
+        } else {
+          setFeaturedBlogPosts(mockBlogPosts);
+          console.log('Using mock blog posts due to loading failure');
+        }
+        
+        if (content.featuredVideos && content.featuredVideos.length > 0) {
+          setFeaturedVideos(content.featuredVideos);
+        } else {
+          setFeaturedVideos(mockVideos);
+          console.log('Using mock videos due to loading failure');
+        }
       } catch (error) {
         console.error('Error loading content:', error);
+        setFeaturedBlogPosts(mockBlogPosts);
+        setFeaturedVideos(mockVideos);
+        toast({
+          title: "Content Loading Issue",
+          description: "Unable to fetch live content. Showing sample content instead.",
+          variant: "default",
+        });
       } finally {
         setIsLoading(false);
       }
     };
     
     loadContent();
-  }, []);
+  }, [toast]);
 
   const toggleTestimonials = () => {
     if (showAllTestimonials) {
