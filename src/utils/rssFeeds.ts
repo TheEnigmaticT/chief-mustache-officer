@@ -1,10 +1,6 @@
 // src/utils/rssFeeds.ts
 
 import { blogPosts as mockBlogPosts, videos as mockVideos } from '../data/publications';
-// Assuming imageUtils contains the necessary helper functions:
-// - extractOpenGraphImage(htmlString): string | null
-// - extractYouTubeId(url): string | null
-// - debugLog(message): void
 import { extractOpenGraphImage, extractYouTubeId, debugLog } from './imageUtils';
 
 // --- Interfaces ---
@@ -45,34 +41,49 @@ const CORS_PROXY_URL = 'https://api.allorigins.win/raw?url=';
  * with fallback to mock data.
  */
 export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
-  console.log('Fetching blog posts...');
-  // Use the standard WordPress feed URL
+  console.group('🚀 Blog Posts Fetch Attempt');
+  console.log('Starting blog post fetch...');
+  
   const feedUrl = 'https://crowdtamers.com/feed/';
   const proxiedFeedUrl = CORS_PROXY_URL + encodeURIComponent(feedUrl);
 
   try {
-    console.log('Attempting to fetch blog feed via CORS proxy:', proxiedFeedUrl);
+    console.log('Attempting to fetch blog feed URL:', proxiedFeedUrl);
     const response = await fetch(proxiedFeedUrl);
 
+    console.log('Fetch Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+
     if (!response.ok) {
-      // Log specific error before throwing
-      const errorText = await response.text().catch(() => 'Could not read error response.');
-      console.error(`Blog feed fetch failed with status ${response.status}: ${errorText}`);
+      const errorText = await response.text().catch(() => 'Could not read error response');
+      console.error('Blog feed fetch failed with details:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: errorText
+      });
+      
       throw new Error(`Failed to fetch blog feed: ${response.status} ${response.statusText}`);
     }
 
     const xmlText = await response.text();
-    console.log('Blog feed XML fetched, parsing...');
+    console.log('XML Text Length:', xmlText.length);
+    console.log('First 500 characters of XML:', xmlText.substring(0, 500));
 
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
     const errorNode = xmlDoc.querySelector('parsererror');
+    
     if (errorNode) {
-        console.error('Error parsing blog XML:', errorNode.textContent);
-        throw new Error('Failed to parse blog feed XML');
+      console.error('XML Parsing Error:', errorNode.textContent);
+      throw new Error('Failed to parse blog feed XML');
     }
 
     const items = xmlDoc.querySelectorAll('item');
+    console.log(`Found ${items.length} items in the feed`);
+
     if (items.length > 0) {
       console.log(`Parsed ${items.length} blog items.`);
       return Array.from(items).map((item, index) => {
@@ -151,9 +162,20 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
        return mockBlogPosts; // Fallback to mock data if no items parsed
     }
   } catch (error) {
-    console.error('Failed to fetch or parse blog posts:', error);
-    console.log('Using mock blog data due to error.');
-    return mockBlogPosts; // Return mock data as fallback on any error
+    console.error('💥 Complete Blog Feed Error:', error);
+    console.log('Will use mock blog posts as fallback');
+    
+    if (error instanceof Error) {
+      console.error('Error Details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+    }
+
+    return mockBlogPosts;
+  } finally {
+    console.groupEnd();
   }
 };
 
