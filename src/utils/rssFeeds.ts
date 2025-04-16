@@ -11,7 +11,8 @@ export interface Video { /* ... same as before ... */ }
 const CORS_PROXY_URL = 'https://api.allorigins.win/raw?url='; // Keep for blog posts
 const YOUTUBE_CHANNEL_ID = 'UCMHNan83yARidp0Ycgq8lWw';
 // *** Raw YouTube feed URL for rss2json ***
-const YOUTUBE_FEED_URL_RAW = `https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID`;
+const YOUTUBE_FEED_URL_RAW = `https://www.youtube.com/feeds/videos.xml?channel_id=UCMHNan83yARidp0Ycgq8lWw`; // Corrected URL
+
 // *** Construct the rss2json API URL ***
 const RSS2JSON_YOUTUBE_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(YOUTUBE_FEED_URL_RAW)}`;
 
