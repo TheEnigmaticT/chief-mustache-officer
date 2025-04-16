@@ -157,10 +157,9 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
  */
 export const fetchYouTubeVideos = async (channelId = 'UCMHNan83yARidp0Ycgq8lWw'): Promise<Video[]> => {
   console.log('Fetching YouTube videos...');
-  // *** FIX: Correct YouTube RSS Feed URL format using the channelId ***
-  const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID`; // Correct base URL
+  const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`; // Use actual channel ID
   const proxiedFeedUrl = CORS_PROXY_URL + encodeURIComponent(feedUrl);
-  console.log('Attempting to fetch YouTube feed via CORS proxy:', proxiedFeedUrl); // Log URL
+  console.log('Attempting to fetch YouTube feed via CORS proxy:', proxiedFeedUrl);
 
   try {
     const response = await fetch(proxiedFeedUrl);

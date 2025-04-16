@@ -1,8 +1,9 @@
-
 import { useState } from 'react';
-import { ExternalLink, Youtube } from 'lucide-react';
+import { ExternalLink, Youtube, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import RobustImage from './RobustImage';
+import logger from '../utils/logger';
+import { Button } from "@/components/ui/button";
 
 interface BlogPost {
   id: string;
@@ -28,19 +29,15 @@ interface FeaturedContentProps {
   featuredVideos: Video[];
 }
 
-// Helper function to determine if a video is a YouTube Short
 const isYouTubeShort = (videoId: string): boolean => {
-  // This is a simplistic check - in a real app you might want a more robust mechanism
-  // Shorts are typically in vertical format, but the videoId format is the same
-  return videoId.length === 11; // All YouTube video IDs are 11 characters
+  return videoId.length === 11;
 }
 
 const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps) => {
   const [failedVideos, setFailedVideos] = useState<Record<string, boolean>>({});
 
-  // Get a fallback image based on index
   const getFallbackImage = (index: number): string => {
-    const imageNum = (index % 7) + 2; // Use image-2 through image-8
+    const imageNum = (index % 7) + 2;
     return `/img/image-${imageNum}`;
   };
 
@@ -49,13 +46,21 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
       <div className="container mx-auto">
         <div className="mb-12 text-center">
           <h2 className="text-3xl md:text-4xl font-semibold text-navy mb-4">Latest Content</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
             Check out my latest blog posts and videos on marketing, growth, and startup success
           </p>
+          <Button 
+            variant="outline"
+            size="sm"
+            onClick={logger.downloadLogs}
+            className="flex items-center gap-2"
+          >
+            <Download size={16} />
+            Download Logs
+          </Button>
         </div>
 
         <div className="grid md:grid-cols-2 gap-12">
-          {/* Featured Blog Posts */}
           <div>
             <div className="flex items-center mb-6">
               <h3 className="text-2xl font-semibold text-navy">Featured Blog Posts</h3>
@@ -65,17 +70,15 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
             </div>
             <div className="space-y-8">
               {featuredPosts.map((post, index) => {
-                // First check if we have an Open Graph image
                 const primaryImage = post.ogImage || post.imageUrl;
                 
-                // Create fallbacks array with local images
                 const fallbacks = [
                   primaryImage,
                   getFallbackImage(index),
                   getFallbackImage(index) + '.png',
                   getFallbackImage((index + 1) % 7 + 2),
                   '/placeholder.svg'
-                ].filter(Boolean); // Remove any empty values
+                ].filter(Boolean);
                 
                 return (
                   <div key={post.id} className="border-b border-gray-200 pb-6 last:border-b-0">
@@ -105,7 +108,6 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
             </div>
           </div>
 
-          {/* Featured YouTube Videos */}
           <div>
             <div className="flex items-center mb-6">
               <h3 className="text-2xl font-semibold text-navy">Latest YouTube Videos</h3>
@@ -122,7 +124,7 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                   getFallbackImage(index),
                   getFallbackImage(index) + '.png',
                   '/placeholder.svg'
-                ].filter(Boolean); // Remove any empty values
+                ].filter(Boolean);
                 
                 const isShort = isYouTubeShort(video.videoId);
                 
