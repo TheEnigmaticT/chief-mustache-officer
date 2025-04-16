@@ -26,7 +26,7 @@ const Hero = () => {
               Trevor Longino
             </h1>
             <h2 className="text-xl md:text-2xl font-medium text-mustache mb-6">
-              AI-powered CMO (That's "Chief Mustache Officer" to you)) with 20+ years GTM experience
+              The AI-powered CMO (That's "Chief Mustache Officer")
             </h2>
             <p className="text-lg text-gray-300 mb-8 max-w-lg">
               I've launched 130 startups, mentored thousands, and built 119 million-dollar 
