@@ -64,19 +64,5 @@ export default defineConfig(({ mode }: ConfigEnv) => ({
     // Generate source maps for better error tracking
     sourcemap: true,
   },
-  // Add custom logger via the log event handlers
-  customLogger: {
-    info: (msg) => {
-      console.info(`[Vite] ${msg}`);
-    },
-    warn: (msg) => {
-      console.warn(`[Vite] ${msg}`);
-    },
-    error: (msg) => {
-      console.error(`[Vite] ${msg}`);
-    },
-    warnOnce: (msg) => {
-      console.warn(`[Vite] (once) ${msg}`);
-    },
-  }
+  // Remove the custom logger as it's incompatible with Vite's Logger interface requirements
 }));
