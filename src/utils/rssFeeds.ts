@@ -1,4 +1,3 @@
-
 // src/utils/rssUtils.ts
 
 /**
@@ -36,8 +35,11 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
   console.log('Fetching blog posts...');
   
   try {
-    // Use RSS2JSON API
-    const rss2jsonUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://crowdtamers.com/author/admin/feed/')}`;
+    // Fix URL encoding by using a simpler approach
+    const feedUrl = 'https://crowdtamers.com/author/admin/feed/';
+    const rss2jsonUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl);
+    
+    console.log('Fetching from URL:', rss2jsonUrl);
     const response = await fetch(rss2jsonUrl);
     
     if (response.ok) {
