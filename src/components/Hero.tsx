@@ -9,6 +9,13 @@ const Hero = () => {
   const fallbackPaths = [
     "/placeholder.svg"
   ];
+  
+  // Define possible image paths
+  const possibleImagePaths = [
+    "/img/cmo.jpg",
+    "/img/image-2.png",
+    "/img/image-3.png"
+  ];
 
   return (
     <section className="pt-24 pb-16 md:py-32 bg-gradient-to-br from-navy to-navy-light">
@@ -36,7 +43,7 @@ const Hero = () => {
           </div>
           <div className="order-1 md:order-2 flex justify-center md:justify-end animate-fadeIn">
             <RobustImage 
-              src={/img/cmo.jpg}
+              src="/img/cmo.jpg"
               fallbacks={possibleImagePaths.slice(1).concat(fallbackPaths)}
               alt="Trevor Longino" 
               className="rounded-lg shadow-xl w-full max-w-sm object-cover"
