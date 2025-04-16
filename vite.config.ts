@@ -48,13 +48,13 @@ export default defineConfig(({ mode }) => ({
     // Add detailed logging
     hmr: {
       logger: {
-        info: (msg) => {
+        info: (msg: string) => {
           console.info(`[HMR] ${msg}`);
         },
-        warn: (msg) => {
+        warn: (msg: string) => {
           console.warn(`[HMR] ${msg}`); 
         },
-        error: (msg) => {
+        error: (msg: string) => {
           console.error(`[HMR] ${msg}`);
         }
       }
