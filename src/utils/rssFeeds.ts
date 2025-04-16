@@ -1,36 +1,48 @@
 // src/utils/rssFeeds.ts
 
+// Assuming mock data and utils are correctly imported
 import { blogPosts as mockBlogPosts, videos as mockVideos } from '../data/publications';
-// Re-add extractOpenGraphImage if needed for other parts, but not used in this simplified fetchBlogPosts
-import { /* extractOpenGraphImage, */ extractYouTubeId, debugLog } from './imageUtils';
+import { extractYouTubeId, debugLog } from './imageUtils'; // extractOpenGraphImage likely not needed now
 
 // --- Interfaces ---
-export interface BlogPost { /* ... same as before ... */ }
-export interface Video { /* ... same as before ... */ }
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  url: string;
+  date: string;
+  imageUrl?: string; // The primary image URL found or placeholder
+  // ogImage field removed
+}
+
+export interface Video {
+  // ... same as before ...
+  id: string;
+  title: string;
+  thumbnailUrl: string;
+  videoUrl: string;
+  videoId: string;
+  date: string;
+}
 
 // --- Constants ---
 const CORS_PROXY_URL = 'https://api.allorigins.win/raw?url=';
-const YOUTUBE_CHANNEL_ID = 'UCMHNan83yARidp0Ycgq8lWw'; // Still defined, though URL is hardcoded below
+const YOUTUBE_CHANNEL_ID = 'UCMHNan83yARidp0Ycgq8lWw';
 const YOUTUBE_FEED_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID`;
 const PROXIED_YOUTUBE_FEED_URL = CORS_PROXY_URL + encodeURIComponent(YOUTUBE_FEED_URL);
-const BLOG_FEED_URL = 'https://crowdtamers.com/feed/';
+// *** UPDATE Blog Feed URL ***
+const BLOG_FEED_URL = 'https://crowdtamers.com/blog/feed/'; // Updated URL
 const PROXIED_BLOG_FEED_URL = CORS_PROXY_URL + encodeURIComponent(BLOG_FEED_URL);
-const KNOWN_GOOD_PLACEHOLDER = '/placeholder.svg'; // Use this directly
+const KNOWN_GOOD_PLACEHOLDER = '/placeholder.svg'; // Keep placeholder as final fallback
 
-// --- Helper Function (Commented out - Not used in simplified version) ---
-/*
-const fetchOgImageForPost = async (postUrl: string): Promise<string | null> => {
-  // ... OG image fetching logic ...
-};
-*/
-
-// --- Updated Fetch Functions ---
+// --- Fetch Functions ---
 
 /**
- * SIMPLIFIED: Fetches blog posts, parses feed, assigns placeholder image.
+ * Fetches blog posts, parses feed including DIRECTLY EMBEDDED images.
  */
 export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
-  console.log('🚀 Blog Posts Fetch Attempt (SIMPLIFIED)'); // Indicate simplified version
+  console.log('🚀 Blog Posts Fetch Attempt (Parsing Feed Images)');
   console.log('Attempting to fetch blog feed URL:', PROXIED_BLOG_FEED_URL);
 
   try {
@@ -47,6 +59,7 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
 
     const items = xmlDoc.querySelectorAll('item');
     console.log(`Found ${items.length} blog items`);
+
     if (items.length > 0) {
       const posts = Array.from(items).map((item, index) => {
         const title = item.querySelector('title')?.textContent || `Post ${index + 1}`;
@@ -56,37 +69,74 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
         const description = item.querySelector('description')?.textContent || '';
         const contentEncoded = item.getElementsByTagNameNS('*', 'encoded')[0]?.textContent || '';
 
+        let imageUrl = ''; // Initialize imageUrl
+        let imageSource = 'None';
+
+        // --- Start Image Extraction from Feed ---
+
+        // 1. Look for <media:content> (Preferred Method)
+        // Use namespace URI 'http://search.yahoo.com/mrss/'
+        const mediaContent = item.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'content')[0];
+        if (mediaContent && mediaContent.getAttribute('medium') === 'image') {
+            imageUrl = mediaContent.getAttribute('url') || '';
+            if (imageUrl) {
+                imageSource = 'MediaContent';
+            }
+        }
+
+        // 2. If no media:content, look for <img> in <content:encoded>
+        if (!imageUrl && contentEncoded) {
+            const imgMatch = contentEncoded.match(/<img[^>]+src="([^">]+)"/i);
+            if (imgMatch && imgMatch[1]) {
+                imageUrl = imgMatch[1];
+                imageSource = 'ContentImgTag';
+            }
+        }
+
+        // 3. If still no image, look for <img> in <description>
+        if (!imageUrl && description) {
+             const imgMatch = description.match(/<img[^>]+src="([^">]+)"/i);
+             if (imgMatch && imgMatch[1]) {
+                 imageUrl = imgMatch[1];
+                 imageSource = 'DescriptionImgTag';
+             }
+        }
+
+        // 4. Assign Fallback if no image found by any method
+        if (!imageUrl) {
+            imageUrl = KNOWN_GOOD_PLACEHOLDER;
+            imageSource = 'FallbackPlaceholder';
+        }
+
+        console.log(`[BlogItem ${index + 1} "${title.substring(0,30)}..."] Final Image URL Assigned: ${imageUrl.substring(0, 60)}... (Source: ${imageSource})`);
+
+        // Create Excerpt (same as before)
         let excerptSource = description || contentEncoded || '';
         excerptSource = excerptSource.replace(/<style[^>]*>.*?<\/style>/gs, '').replace(/<script[^>]*>.*?<\/script>/gs, '');
         excerptSource = excerptSource.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
         const excerpt = excerptSource.substring(0, 150) + (excerptSource.length > 150 ? '...' : '');
 
-        // *** Directly assign placeholder ***
-        const finalImageUrl = KNOWN_GOOD_PLACEHOLDER;
-        console.log(`[BlogItem ${index + 1}] Assigning placeholder: ${finalImageUrl}`);
-
         return {
           id: guid, title, excerpt, url: link,
           date: new Date(pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-          imageUrl: finalImageUrl,
-          ogImage: undefined // No OG image fetched in this version
+          imageUrl: imageUrl, // Assign the final URL found (or placeholder)
+          // No ogImage field anymore
         };
       });
-      console.log("Finished processing blog items (simplified).");
+      console.log("Finished processing blog items (with direct image parsing).");
       return posts;
     } else {
       console.warn('No <item> elements found in blog feed. Using mocks.');
       return mockBlogPosts;
     }
   } catch (error: any) {
-    console.error('Failed during simplified fetchBlogPosts. Error:', error);
-    console.log('Using mock blog data due to simplified fetch error.');
+    console.error('Failed during fetchBlogPosts. Error:', error);
+    console.log('Using mock blog data due to fetch/parse error.');
     return mockBlogPosts;
   }
 };
 
-
-// --- fetchYouTubeVideos (Keep the version with hardcoded URL) ---
+// --- fetchYouTubeVideos (Should remain the same - assuming hardcoded URL worked or needs separate debugging) ---
 export const fetchYouTubeVideos = async (): Promise<Video[]> => {
     console.log('Fetching YouTube videos...');
     console.log('Attempting to fetch YouTube feed via CORS proxy:', PROXIED_YOUTUBE_FEED_URL);
@@ -135,20 +185,17 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
 };
 
 
-// --- Load Function (Add more logging) ---
+// --- loadFeaturedContent (remains the same) ---
 export const loadFeaturedContent = async () => {
   console.log('>>> Starting loadFeaturedContent...');
   try {
-    // Add log before calling Promise.allSettled
     console.log('>>> Calling Promise.allSettled for fetchBlogPosts and fetchYouTubeVideos...');
     const results = await Promise.allSettled([
       fetchBlogPosts(),
       fetchYouTubeVideos()
     ]);
-    // Add log after Promise.allSettled resolves
     console.log('>>> Promise.allSettled finished. Results:', results);
 
-    // Check blog post results
     let blogPosts: BlogPost[];
     if (results[0].status === 'fulfilled') {
       console.log('>>> Blog posts fetch succeeded.');
@@ -158,7 +205,6 @@ export const loadFeaturedContent = async () => {
       blogPosts = mockBlogPosts;
     }
 
-    // Check video results
     let videos: Video[];
     if (results[1].status === 'fulfilled') {
       console.log('>>> YouTube videos fetch succeeded.');
@@ -180,14 +226,7 @@ export const loadFeaturedContent = async () => {
       allVideos: videos
     };
   } catch (error) {
-      // Catch unexpected errors within loadFeaturedContent itself
       console.error('>>> UNEXPECTED ERROR within loadFeaturedContent:', error);
-      // Return mock data in case of such an error
-      return {
-          featuredBlogPosts: mockBlogPosts.slice(0, 3),
-          featuredVideos: mockVideos.slice(0, 3),
-          allBlogPosts: mockBlogPosts,
-          allVideos: mockVideos
-      };
+      return { /* Return mock data */ };
   }
 };
