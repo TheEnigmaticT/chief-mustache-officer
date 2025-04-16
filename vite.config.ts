@@ -1,5 +1,5 @@
 
-import { defineConfig, Plugin } from "vite";
+import { defineConfig, Plugin, ConfigEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
@@ -41,23 +41,13 @@ const loggerPlugin = (): Plugin => {
 };
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode }: ConfigEnv) => ({
   server: {
     host: "::",
     port: 8080,
-    // Add detailed logging
+    // Fix HMR logger configuration to match the expected type
     hmr: {
-      logger: {
-        info: (msg: string) => {
-          console.info(`[HMR] ${msg}`);
-        },
-        warn: (msg: string) => {
-          console.warn(`[HMR] ${msg}`); 
-        },
-        error: (msg: string) => {
-          console.error(`[HMR] ${msg}`);
-        }
-      }
+      overlay: true, // Use standard HMR options instead
     },
   },
   plugins: [
@@ -74,4 +64,19 @@ export default defineConfig(({ mode }) => ({
     // Generate source maps for better error tracking
     sourcemap: true,
   },
+  // Add custom logger via the log event handlers
+  customLogger: {
+    info: (msg) => {
+      console.info(`[Vite] ${msg}`);
+    },
+    warn: (msg) => {
+      console.warn(`[Vite] ${msg}`);
+    },
+    error: (msg) => {
+      console.error(`[Vite] ${msg}`);
+    },
+    warnOnce: (msg) => {
+      console.warn(`[Vite] (once) ${msg}`);
+    },
+  }
 }));
