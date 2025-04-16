@@ -82,12 +82,14 @@ export const getCorrectImagePath = async (path: string): Promise<string> => {
   }
   
   // Try with extensions
-  const extensions = ['.png', '.jpg', '.webp'];
+  // Remove any existing extension first
+  const basePathWithoutExtension = cleanPath.replace(/\.(png|jpg|jpeg|gif|webp)$/i, '');
+  debugLog('Base path without extension:', basePathWithoutExtension);
+  
+  // Try with various extensions
+  const extensions = ['.png', '.jpg', '.webp', '.gif'];
   for (const ext of extensions) {
-    // Skip if the path already has this extension
-    if (cleanPath.toLowerCase().endsWith(ext.toLowerCase())) continue;
-    
-    const pathWithExt = `${cleanPath}${ext}`;
+    const pathWithExt = `${basePathWithoutExtension}${ext}`;
     debugLog('Testing with extension:', pathWithExt);
     
     exists = await checkImageUrl(pathWithExt);

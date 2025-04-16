@@ -33,6 +33,7 @@ export interface Video {
 // --- Constants ---
 
 const CORS_PROXY_URL = 'https://api.allorigins.win/raw?url=';
+const YOUTUBE_CHANNEL_ID = 'UCMHNan83yARidp0Ycgq8lWw';
 
 // --- Fetch Functions ---
 
@@ -101,7 +102,7 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
 
         // 1. Try Open Graph image from content:encoded
          if (contentEncoded) {
-           ogImage = extractOpenGraphImage(contentEncoded); // Assuming this function exists and works
+           ogImage = extractOpenGraphImage(contentEncoded); 
            if (ogImage) {
              debugLog(`Found OpenGraph image for "${title}": ${ogImage}`);
              imageUrl = ogImage;
@@ -133,7 +134,7 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
 
         // 4. Use placeholder if no image found
         if (!imageUrl) {
-          imageUrl = `/img/image-${(index % 7) + 2}.jpg`; // Default fallback (ensure these images exist)
+          imageUrl = `/img/image-${(index % 7) + 2}`; // Remove extension, will be added by imageUtils
           debugLog(`Using fallback image for "${title}": ${imageUrl}`);
         }
 
@@ -182,25 +183,38 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
 /**
  * Fetches YouTube video feed using a CORS proxy, with fallback to mock data.
  */
-export const fetchYouTubeVideos = async (channelId = 'UCMHNan83yARidp0Ycgq8lWw'): Promise<Video[]> => {
-  console.log('Fetching YouTube videos...');
-  // Correct YouTube RSS Feed URL format
-  const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID`;
+export const fetchYouTubeVideos = async (channelId = YOUTUBE_CHANNEL_ID): Promise<Video[]> => {
+  console.group('🎬 YouTube Videos Fetch Attempt');
+  console.log('Fetching YouTube videos for channel:', channelId);
+  
+  // Correct YouTube RSS Feed URL format with actual channel ID
+  const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
   const proxiedFeedUrl = CORS_PROXY_URL + encodeURIComponent(feedUrl);
 
   try {
     console.log('Attempting to fetch YouTube feed via CORS proxy:', proxiedFeedUrl);
     const response = await fetch(proxiedFeedUrl);
 
+    console.log('Fetch Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+
     if (!response.ok) {
-       // Log specific error before throwing
-       const errorText = await response.text().catch(() => 'Could not read error response.');
-       console.error(`YouTube feed fetch failed with status ${response.status}: ${errorText}`);
-       throw new Error(`Failed to fetch YouTube feed: ${response.status} ${response.statusText}`);
-     }
+      const errorText = await response.text().catch(() => 'Could not read error response.');
+      console.error('YouTube feed fetch failed with details:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: errorText
+      });
+      throw new Error(`Failed to fetch YouTube feed: ${response.status} ${response.statusText}`);
+    }
 
     const xmlText = await response.text();
     console.log('YouTube feed XML fetched, parsing...');
+    console.log('XML Text Length:', xmlText.length);
+    console.log('First 500 characters of XML:', xmlText.substring(0, 500));
 
     const parser = new DOMParser();
     // Use "application/xml" or "text/xml" - both should work for YT feeds
@@ -208,16 +222,17 @@ export const fetchYouTubeVideos = async (channelId = 'UCMHNan83yARidp0Ycgq8lWw')
 
     const errorNode = xmlDoc.querySelector('parsererror');
      if (errorNode) {
-         console.error('Error parsing YouTube XML:', errorNode.textContent);
+         console.error('XML Parsing Error:', errorNode.textContent);
          throw new Error('Failed to parse YouTube feed XML');
      }
 
     // YouTube feed uses <entry> elements
     const entries = xmlDoc.querySelectorAll('entry');
+    console.log(`Found ${entries.length} entries in the YouTube feed`);
+    
     if (entries.length > 0) {
       console.log(`Parsed ${entries.length} YouTube video entries.`);
       return Array.from(entries).slice(0, 6).map((entry, index) => {
-        // Namespace-aware querySelector for YouTube tags
         const videoId = entry.getElementsByTagNameNS('http://www.youtube.com/xml/schemas/2015', 'videoId')[0]?.textContent || '';
         const title = entry.querySelector('title')?.textContent || `Video ${index + 1}`;
         const link = entry.querySelector('link[rel="alternate"]')?.getAttribute('href') || '';
@@ -228,7 +243,7 @@ export const fetchYouTubeVideos = async (channelId = 'UCMHNan83yARidp0Ycgq8lWw')
         const thumbnailUrl = thumbnail?.getAttribute('url') || '';
 
         // Fallback thumbnail using video ID if parsing failed
-        const finalThumbnailUrl = thumbnailUrl || (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : `/img/image-${(index % 3) + 1}.jpg`); // Add a generic fallback image too
+        const finalThumbnailUrl = thumbnailUrl || (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : `/img/image-${(index % 3) + 1}`); // Remove extension
 
         // Extract video ID from link as a fallback if yt:videoId tag fails
         const finalVideoId = videoId || extractYouTubeId(link) || `unknown-${index}`;
@@ -252,9 +267,9 @@ export const fetchYouTubeVideos = async (channelId = 'UCMHNan83yARidp0Ycgq8lWw')
     console.error('Failed to fetch or parse YouTube videos:', error);
     // Use your specific fallback list if needed, otherwise use mockVideos
     console.log('Using mock YouTube video data due to error.');
-    // const workingVideos = [ ... ]; // Your specific fallback list
-    // return workingVideos;
     return mockVideos;
+  } finally {
+    console.groupEnd();
   }
 };
 
