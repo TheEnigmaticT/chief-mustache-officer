@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { ExternalLink, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -10,6 +11,7 @@ interface BlogPost {
   url: string;
   date: string;
   imageUrl?: string;
+  ogImage?: string;
 }
 
 interface Video {
@@ -36,7 +38,7 @@ const isYouTubeShort = (videoId: string): boolean => {
 const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps) => {
   const [failedVideos, setFailedVideos] = useState<Record<string, boolean>>({});
 
-  // Get a fallback image based on index - updated paths
+  // Get a fallback image based on index
   const getFallbackImage = (index: number): string => {
     const imageNum = (index % 7) + 2; // Use image-2 through image-8
     return `/img/image-${imageNum}`;
@@ -63,18 +65,23 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
             </div>
             <div className="space-y-8">
               {featuredPosts.map((post, index) => {
+                // First check if we have an Open Graph image
+                const primaryImage = post.ogImage || post.imageUrl;
+                
+                // Create fallbacks array with local images
                 const fallbacks = [
+                  primaryImage,
                   getFallbackImage(index),
                   getFallbackImage(index) + '.png',
                   getFallbackImage((index + 1) % 7 + 2),
                   '/placeholder.svg'
-                ];
+                ].filter(Boolean); // Remove any empty values
                 
                 return (
                   <div key={post.id} className="border-b border-gray-200 pb-6 last:border-b-0">
                     <div className="mb-4 overflow-hidden rounded-lg">
                       <RobustImage 
-                        src={post.imageUrl || fallbacks[0]}
+                        src={primaryImage || fallbacks[0]}
                         fallbacks={fallbacks}
                         alt={post.title} 
                         className="w-full h-48 object-cover hover:scale-105 transition-transform"
@@ -109,11 +116,13 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
             <div className="space-y-6">
               {featuredVideos.map((video, index) => {
                 const fallbacks = [
+                  video.thumbnailUrl,
+                  `https://img.youtube.com/vi/${video.videoId}/maxresdefault.jpg`,
+                  `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`,
                   getFallbackImage(index),
                   getFallbackImage(index) + '.png',
-                  getFallbackImage((index + 1) % 7 + 2),
                   '/placeholder.svg'
-                ];
+                ].filter(Boolean); // Remove any empty values
                 
                 const isShort = isYouTubeShort(video.videoId);
                 

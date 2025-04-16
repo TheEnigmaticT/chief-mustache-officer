@@ -13,6 +13,7 @@ export interface BlogPost {
   url: string;
   date: string;
   imageUrl?: string;
+  ogImage?: string; // Add specific field for Open Graph image
 }
 
 export interface Video {
@@ -26,7 +27,7 @@ export interface Video {
 
 // Import fallback data and utilities
 import { blogPosts as mockBlogPosts, videos as mockVideos } from '../data/publications';
-import { extractOpenGraphImage, extractYouTubeId } from './imageUtils';
+import { extractOpenGraphImage, extractYouTubeId, debugLog } from './imageUtils';
 
 /**
  * Tries multiple RSS parsers to get content
@@ -47,11 +48,15 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
         return data.items.map((item: any, index: number) => {
           // Extract image from content if possible
           let imageUrl = item.thumbnail || '';
+          let ogImage = null;
           
           // Try to extract OpenGraph image
           if (item.content) {
-            const ogImage = extractOpenGraphImage(item.content);
-            if (ogImage) imageUrl = ogImage;
+            ogImage = extractOpenGraphImage(item.content);
+            if (ogImage) {
+              debugLog(`Found OpenGraph image for "${item.title}": ${ogImage}`);
+              imageUrl = ogImage;
+            }
           }
           
           // If still no image, try to extract from content
@@ -62,7 +67,7 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
           
           // If still no image, use a fallback
           if (!imageUrl) {
-            imageUrl = `/lovable-uploads/image-${(index % 6) + 2}`; // Use image-2 through image-8
+            imageUrl = `/img/image-${(index % 7) + 2}`; // Use image-2 through image-8
           }
           
           // Create excerpt from content
@@ -79,7 +84,8 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
               month: 'long',
               day: 'numeric'
             }),
-            imageUrl: imageUrl
+            imageUrl: imageUrl,
+            ogImage: ogImage
           };
         });
       }
@@ -147,7 +153,7 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
       title: "Marketing Minute: ROI Calculation",
       videoId: "dQw4w9WgXcQ", // Never Gonna Give You Up
       videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      thumbnailUrl: "/lovable-uploads/image-3",
+      thumbnailUrl: "/img/image-3",
       date: new Date().toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -159,7 +165,7 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
       title: "Marketing Minute: Audience Targeting",
       videoId: "9bZkp7q19f0", // Gangnam Style
       videoUrl: "https://www.youtube.com/watch?v=9bZkp7q19f0",
-      thumbnailUrl: "/lovable-uploads/image-2",
+      thumbnailUrl: "/img/image-2",
       date: new Date().toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -171,7 +177,7 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
       title: "Marketing Minute: Sales Funnel Design",
       videoId: "jNQXAC9IVRw", // First YouTube video ever
       videoUrl: "https://www.youtube.com/watch?v=jNQXAC9IVRw",
-      thumbnailUrl: "/lovable-uploads/image-6",
+      thumbnailUrl: "/img/image-6",
       date: new Date().toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',

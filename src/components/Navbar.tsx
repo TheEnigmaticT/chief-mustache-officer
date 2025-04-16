@@ -1,7 +1,16 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import RobustImage from './RobustImage';
+
+// Define logo paths
+const logoPath = "/img/ChiefMustacheOfficer_Logo_Horizontal.png";
+const logoFallbacks = [
+  "/img/cmo.jpg",
+  "/img/image-2.png",
+  "/img/image-3.png"
+];
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,8 +26,8 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <RobustImage 
-              src="/img/ChiefMustacheOfficer_Logo_Horizontal.png"
-              fallbacks={logoPaths.slice(1)}
+              src={logoPath}
+              fallbacks={logoFallbacks}
               alt="Chief Mustache Officer"
               className="h-8 w-8 rounded-full object-cover"
               loading="eager"
