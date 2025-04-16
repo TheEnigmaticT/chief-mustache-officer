@@ -4,14 +4,6 @@ import { ArrowDownCircle } from 'lucide-react';
 import RobustImage from './RobustImage';
 
 const Hero = () => {
-  // Define multiple image paths to try - with updated paths
-  const possibleImagePaths = [
-    "/img/image-2",
-    "/img/image-2.png",
-    "/img/image-3",
-    "/img/image-6",
-    "/img/image-8"
-  ];
   
   // Provide multiple fallbacks
   const fallbackPaths = [
@@ -27,7 +19,7 @@ const Hero = () => {
               Trevor Longino
             </h1>
             <h2 className="text-xl md:text-2xl font-medium text-mustache mb-6">
-              AI-powered CMO with 20+ years GTM experience
+              AI-powered CMO (That's "Chief Mustache Officer" to you)) with 20+ years GTM experience
             </h2>
             <p className="text-lg text-gray-300 mb-8 max-w-lg">
               I've launched 130 startups, mentored thousands, and built 119 million-dollar 
@@ -37,14 +29,14 @@ const Hero = () => {
               <Link to="/cv" className="btn btn-primary btn-lg">
                 View My CV
               </Link>
-              <Link to="/projects" className="btn btn-outline btn-lg text-white border-white hover:bg-white/10">
+              <Link to="/projects" className="btn btn-outline btn-lg border-white hover:bg-white/10">
                 See My Projects
               </Link>
             </div>
           </div>
           <div className="order-1 md:order-2 flex justify-center md:justify-end animate-fadeIn">
             <RobustImage 
-              src={possibleImagePaths[0]}
+              src={/img/cmo.jpg}
               fallbacks={possibleImagePaths.slice(1).concat(fallbackPaths)}
               alt="Trevor Longino" 
               className="rounded-lg shadow-xl w-full max-w-sm object-cover"
