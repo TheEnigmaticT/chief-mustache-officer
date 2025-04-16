@@ -1,3 +1,4 @@
+
 // src/utils/rssUtils.ts
 
 /**
@@ -35,7 +36,7 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
   console.log('Fetching blog posts...');
   
   try {
-    // Fix URL encoding by using a simpler approach
+    // First attempt with direct RSS2JSON API
     const feedUrl = 'https://crowdtamers.com/author/admin/feed/';
     const rss2jsonUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl);
     
@@ -91,9 +92,65 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
           };
         });
       }
+    } else {
+      // Log the error response for debugging
+      const errorText = await response.text();
+      console.error('Blog feed fetch failed:', response.status, errorText);
     }
     
-    console.log('RSS2JSON failed, trying fallback...');
+    // Second attempt - try direct WordPress feed with CORS proxy
+    console.log('Trying alternative feed fetching method...');
+    const corsProxyUrl = 'https://api.allorigins.win/raw?url=';
+    const wpFeedUrl = corsProxyUrl + encodeURIComponent('https://crowdtamers.com/feed/');
+    
+    const wpResponse = await fetch(wpFeedUrl);
+    
+    if (wpResponse.ok) {
+      const xmlText = await wpResponse.text();
+      console.log('WordPress feed fetched, parsing XML');
+      
+      // Simple XML parsing
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+      
+      const items = xmlDoc.querySelectorAll('item');
+      if (items.length > 0) {
+        return Array.from(items).map((item, index) => {
+          const title = item.querySelector('title')?.textContent || `Post ${index}`;
+          const link = item.querySelector('link')?.textContent || '';
+          const pubDate = item.querySelector('pubDate')?.textContent || '';
+          let description = item.querySelector('description')?.textContent || '';
+          
+          // Extract image if available
+          let imageUrl = '';
+          if (description) {
+            const imgMatch = description.match(/<img[^>]+src="([^">]+)"/i);
+            if (imgMatch) imageUrl = imgMatch[1];
+          }
+          
+          // Clean up description for excerpt
+          description = description.replace(/<[^>]*>/g, '');
+          const excerpt = description.substring(0, 150) + '...';
+          
+          return {
+            id: `wp-${index}`,
+            title,
+            excerpt,
+            url: link,
+            date: new Date(pubDate).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }),
+            imageUrl: imageUrl || `/img/image-${(index % 7) + 2}`
+          };
+        });
+      }
+    } else {
+      console.error('WordPress feed fetch failed');
+    }
+    
+    console.log('All RSS feed approaches failed, using fallback data');
     
   } catch (error) {
     console.error('Failed to fetch blog posts:', error);
@@ -124,7 +181,7 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
       if (data.status === 'ok' && data.items && Array.isArray(data.items)) {
         return data.items.slice(0, 6).map((item: any, index: number) => {
           // Extract video ID from URL
-          const videoId = extractYouTubeId(item.link);
+          const videoId = extractYouTubeId(item.link) || '';
           
           return {
             id: `video-${index}`,
