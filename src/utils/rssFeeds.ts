@@ -4,14 +4,30 @@ import { blogPosts as mockBlogPosts, videos as mockVideos } from '../data/public
 import { extractYouTubeId, debugLog } from './imageUtils';
 
 // --- Interfaces ---
-export interface BlogPost { /* ... same as before ... */ }
-export interface Video { /* ... same as before ... */ }
+export interface BlogPost { 
+  id: string;
+  title: string;
+  excerpt: string;
+  url: string;
+  date: string;
+  imageUrl?: string;
+  ogImage?: string;
+}
+
+export interface Video {
+  id: string;
+  title: string;
+  thumbnailUrl: string;
+  videoUrl: string;
+  videoId: string;
+  date: string;
+}
 
 // --- Constants ---
 const CORS_PROXY_URL = 'https://api.allorigins.win/raw?url='; // Keep for blog posts
-const YOUTUBE_CHANNEL_ID = 'UCMHNan83yARidp0Ycgq8lWw';
+const YOUTUBE_CHANNEL_ID = 'UCMHNan83yARidp0Ycgq8lWw'; // Your actual channel ID
 // *** Raw YouTube feed URL for rss2json ***
-const YOUTUBE_FEED_URL_RAW = `https://www.youtube.com/feeds/videos.xml?channel_id=UCMHNan83yARidp0Ycgq8lWw`; // Corrected URL
+const YOUTUBE_FEED_URL_RAW = `https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`;
 
 // *** Construct the rss2json API URL ***
 const RSS2JSON_YOUTUBE_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(YOUTUBE_FEED_URL_RAW)}`;
@@ -30,7 +46,6 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
     console.log('Attempting to fetch blog feed URL:', PROXIED_BLOG_FEED_URL);
     try {
       const response = await fetch(PROXIED_BLOG_FEED_URL);
-      // ... (Rest of the working blog post fetch/parse logic from previous step) ...
       console.log('Blog Fetch Response:', { status: response.status, ok: response.ok });
       if (!response.ok) throw new Error(`Blog Feed Fetch Failed: ${response.status}`);
       const xmlText = await response.text();
@@ -42,7 +57,6 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
        if (items.length === 0) return mockBlogPosts; // Use mock if no items
 
       const posts = Array.from(items).map((item, index) => {
-          // ... (Blog data extraction including image parsing from feed) ...
             const title = item.querySelector('title')?.textContent || `Post ${index + 1}`;
             const link = item.querySelector('link')?.textContent || '';
             const guid = item.querySelector('guid')?.textContent || link || `blog-${index}`;
@@ -78,23 +92,19 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
  */
 export const fetchYouTubeVideos = async (): Promise<Video[]> => {
     console.log('Fetching YouTube videos via RSS2JSON...');
-    // *** Log the CORRECT URL we intend to fetch ***
+    console.log('Using channel ID:', YOUTUBE_CHANNEL_ID);
     console.log('Attempting to fetch YouTube feed from RSS2JSON Endpoint:', RSS2JSON_YOUTUBE_URL);
 
     try {
-      // *** ENSURE this fetch call uses the RSS2JSON_YOUTUBE_URL constant ***
       const response = await fetch(RSS2JSON_YOUTUBE_URL);
-      // *** ^^^ The MOST IMPORTANT FIX is here ^^^ ***
-
       console.log('RSS2JSON YouTube Fetch Response:', { status: response.status, ok: response.ok });
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => '[Could not read response body]');
         console.error(`RSS2JSON YouTube fetch failed with status ${response.status}: ${errorText.substring(0,500)}...`);
-        // Add specific check for 500 error from logs
-         if (response.status === 500 && errorText.includes("Cannot download this RSS feed")) {
+        if (response.status === 500 && errorText.includes("Cannot download this RSS feed")) {
              console.error(">>> RSS2JSON specifically failed to download the target feed. Verify the raw YouTube URL is correct and accessible: ", YOUTUBE_FEED_URL_RAW);
-         }
+        }
         throw new Error(`RSS2JSON fetch failed: ${response.status}`);
       }
 
@@ -111,57 +121,84 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
         throw new Error('Invalid items data from RSS2JSON');
       }
 
-       console.log(`RSS2JSON returned ${data.items.length} YouTube items.`);
-       if (data.items.length === 0) {
-           console.warn("No items found in YouTube feed via RSS2JSON. Using mocks.");
-           return mockVideos;
-       }
+      console.log(`RSS2JSON returned ${data.items.length} YouTube items.`);
+      if (data.items.length === 0) {
+        console.warn("No items found in YouTube feed via RSS2JSON. Using mocks.");
+        return mockVideos;
+      }
 
-      const videos = data.items.slice(0, 6).map((item: any, index: number) => {
-        // Mapping logic remains the same
-         const videoId = extractYouTubeId(item.link || '') || `unknown-${index}`;
-         const thumbnailUrl = item.thumbnail || (videoId !== `unknown-${index}` ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : KNOWN_GOOD_PLACEHOLDER); // Corrected YT thumbnail URL format
-         console.log(`[YouTubeItem ${index + 1} (rss2json)] Thumb: ${thumbnailUrl.substring(0,60)}..., VideoID: ${videoId}`);
-         return {
-             id: `video-${videoId}`,
-             title: item.title || `Video ${index + 1}`,
-             thumbnailUrl: thumbnailUrl,
-             videoUrl: item.link || '',
-             videoId: videoId,
-             date: new Date(item.pubDate || Date.now()).toLocaleDateString('en-US', {
-                year: 'numeric', month: 'long', day: 'numeric'
-             })
-         };
+      const videos = data.items.map((item: any, index: number) => {
+        const videoId = extractYouTubeId(item.link || '') || `unknown-${index}`;
+        const thumbnailUrl = item.thumbnail || (videoId !== `unknown-${index}` ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : KNOWN_GOOD_PLACEHOLDER);
+        console.log(`[YouTubeItem ${index + 1} (rss2json)] Thumb: ${thumbnailUrl.substring(0,60)}..., VideoID: ${videoId}`);
+        
+        return {
+          id: `video-${videoId}`,
+          title: item.title || `Video ${index + 1}`,
+          thumbnailUrl: thumbnailUrl,
+          videoUrl: item.link || '',
+          videoId: videoId,
+          date: new Date(item.pubDate || Date.now()).toLocaleDateString('en-US', {
+             year: 'numeric', month: 'long', day: 'numeric'
+          })
+        };
       });
 
       console.log("Finished processing YouTube items from RSS2JSON.");
       return videos;
-
     } catch (error: any) {
-      // Log the actual error object from the catch block
       console.error('Failed during fetchYouTubeVideos (RSS2JSON). Caught Error:', error);
       console.log('Using mock YouTube video data due to RSS2JSON error.');
       return mockVideos; // Fallback to mock data on any error
     }
 };
 
-// --- loadFeaturedContent (remains the same) ---
+// --- loadFeaturedContent ---
 export const loadFeaturedContent = async () => {
-  // ... (same as before, calls the updated fetchYouTubeVideos) ...
-   console.log('>>> Starting loadFeaturedContent...');
-   try {
-     console.log('>>> Calling Promise.allSettled...');
-     const results = await Promise.allSettled([ fetchBlogPosts(), fetchYouTubeVideos() ]);
-     console.log('>>> Promise.allSettled finished. Results:', results);
-     // ... (rest of the result processing) ...
-      let blogPosts: BlogPost[]; if (results[0].status === 'fulfilled') { console.log('>>> Blog posts fetch succeeded.'); blogPosts = results[0].value; } else { console.error('>>> Blog posts fetch failed:', results[0].reason); blogPosts = mockBlogPosts; }
-      let videos: Video[]; if (results[1].status === 'fulfilled') { console.log('>>> YouTube videos fetch succeeded.'); videos = results[1].value; } else { console.error('>>> YouTube videos fetch failed:', results[1].reason); videos = mockVideos; }
-      console.log(`>>> Final Loaded Counts - Blog Posts: ${blogPosts.length}, Videos: ${videos.length}`);
-      console.log(`>>> Blog post source: ${results[0].status === 'fulfilled' ? 'Fetched' : 'Mock'}`);
-      console.log(`>>> Video source: ${results[1].status === 'fulfilled' ? 'Fetched' : 'Mock'}`);
-      console.log('>>> loadFeaturedContent returning data.');
-      return { featuredBlogPosts: blogPosts.slice(0, 3), featuredVideos: videos.slice(0, 3), allBlogPosts: blogPosts, allVideos: videos };
-
-   } catch (error) { /* ... error handling ... */ }
-   return { /* Return mock data */ };
+  console.log('>>> Starting loadFeaturedContent...');
+  
+  try {
+    console.log('>>> Calling Promise.allSettled...');
+    const results = await Promise.allSettled([fetchBlogPosts(), fetchYouTubeVideos()]);
+    console.log('>>> Promise.allSettled finished. Results:', results);
+    
+    let blogPosts: BlogPost[] = [];
+    let videos: Video[] = [];
+    
+    if (results[0].status === 'fulfilled') {
+      console.log('>>> Blog posts fetch succeeded.');
+      blogPosts = results[0].value;
+    } else {
+      console.error('>>> Blog posts fetch failed:', results[0].reason);
+      blogPosts = mockBlogPosts;
+    }
+    
+    if (results[1].status === 'fulfilled') {
+      console.log('>>> YouTube videos fetch succeeded.');
+      videos = results[1].value;
+    } else {
+      console.error('>>> YouTube videos fetch failed:', results[1].reason);
+      videos = mockVideos;
+    }
+    
+    console.log(`>>> Final Loaded Counts - Blog Posts: ${blogPosts.length}, Videos: ${videos.length}`);
+    console.log(`>>> Blog post source: ${results[0].status === 'fulfilled' ? 'Fetched' : 'Mock'}`);
+    console.log(`>>> Video source: ${results[1].status === 'fulfilled' ? 'Fetched' : 'Mock'}`);
+    console.log('>>> loadFeaturedContent returning data.');
+    
+    return { 
+      featuredBlogPosts: blogPosts.slice(0, 3), 
+      featuredVideos: videos.slice(0, 6),  // Get more videos for the masonry layout
+      allBlogPosts: blogPosts, 
+      allVideos: videos 
+    };
+  } catch (error) {
+    console.error('>>> Error in loadFeaturedContent:', error);
+    return { 
+      featuredBlogPosts: mockBlogPosts.slice(0, 3), 
+      featuredVideos: mockVideos.slice(0, 6),
+      allBlogPosts: mockBlogPosts, 
+      allVideos: mockVideos 
+    };
+  }
 };
