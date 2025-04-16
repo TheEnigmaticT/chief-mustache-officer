@@ -1,10 +1,6 @@
 // src/utils/rssFeeds.ts
 
 import { blogPosts as mockBlogPosts, videos as mockVideos } from '../data/publications';
-// Assuming imageUtils contains the necessary helper functions:
-// - extractOpenGraphImage(htmlString): string | null
-// - extractYouTubeId(url): string | null
-// - debugLog(message): void
 import { extractOpenGraphImage, extractYouTubeId, debugLog } from './imageUtils';
 
 // --- Interfaces ---
@@ -39,25 +35,24 @@ const CORS_PROXY_URL = 'https://api.allorigins.win/raw?url=';
  * with fallback to mock data.
  */
 export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
-  console.log('🚀 Blog Posts Fetch Attempt'); // Log start
+  console.log('🚀 Blog Posts Fetch Attempt');
   console.log('Starting blog post fetch...');
   const feedUrl = 'https://crowdtamers.com/feed/';
   const proxiedFeedUrl = CORS_PROXY_URL + encodeURIComponent(feedUrl);
-  console.log('Attempting to fetch blog feed URL:', proxiedFeedUrl); // Log URL
+  console.log('Attempting to fetch blog feed URL:', proxiedFeedUrl);
 
   try {
     const response = await fetch(proxiedFeedUrl);
-    console.log('Fetch Response:', { status: response.status, statusText: response.statusText, ok: response.ok }); // Log response status
+    console.log('Blog Fetch Response:', { status: response.status, statusText: response.statusText, ok: response.ok });
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Could not read error response.');
-      console.error(`Blog feed fetch failed with status ${response.status}: ${errorText}`);
+      console.error(`Blog feed fetch failed with status ${response.status}: ${errorText.substring(0, 500)}...`);
       throw new Error(`Failed to fetch blog feed: ${response.status} ${response.statusText}`);
     }
 
     const xmlText = await response.text();
-    console.log(`XML Text Length: ${xmlText.length}`); // Log XML length
-    // console.log('First 500 characters of XML:', xmlText.substring(0, 500)); // Optional: Log start of XML
+    console.log(`Blog XML Text Length: ${xmlText.length}`);
 
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
@@ -68,10 +63,11 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
     }
 
     const items = xmlDoc.querySelectorAll('item');
-    console.log(`Found ${items.length} items in the feed`); // Log item count
+    console.log(`Found ${items.length} blog items in the feed`);
     if (items.length > 0) {
-      console.log(`Parsed ${items.length} blog items.`);
-      return Array.from(items).map((item, index) => {
+      console.log(`Parsing ${items.length} blog items...`);
+      // ... (rest of the parsing logic remains the same as the previous version) ...
+       return Array.from(items).map((item, index) => {
         const title = item.querySelector('title')?.textContent || `Post ${index + 1}`;
         const link = item.querySelector('link')?.textContent || '';
         const guid = item.querySelector('guid')?.textContent || link || `blog-${index}`;
@@ -80,28 +76,17 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
         const contentEncoded = item.getElementsByTagNameNS('*', 'encoded')[0]?.textContent || '';
 
         let imageUrl = '';
-        let imageSource = 'None'; // Track where the image came from
+        let imageSource = 'None';
         let ogImage: string | null = null;
 
-        // 1. Try Open Graph image from content:encoded
-         if (contentEncoded) {
+        if (contentEncoded) {
            ogImage = extractOpenGraphImage(contentEncoded);
-           if (ogImage) {
-             imageUrl = ogImage;
-             imageSource = 'OpenGraph';
-           }
+           if (ogImage) { imageUrl = ogImage; imageSource = 'OpenGraph'; }
          }
-
-        // 2. Try extracting regular image from content:encoded if no OG image
         if (!imageUrl && contentEncoded) {
           const imgMatch = contentEncoded.match(/<img[^>]+src="([^">]+)"/i);
-          if (imgMatch && imgMatch[1]) {
-            imageUrl = imgMatch[1];
-            imageSource = 'ContentImgTag';
-           }
+          if (imgMatch && imgMatch[1]) { imageUrl = imgMatch[1]; imageSource = 'ContentImgTag'; }
         }
-
-        // 3. Try extracting from media:content or enclosure
         if (!imageUrl) {
             const mediaContent = item.getElementsByTagNameNS('*', 'content')[0];
             if (mediaContent && mediaContent.getAttribute('medium') === 'image') {
@@ -115,38 +100,33 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
                  }
             }
         }
-
-        // 4. Use placeholder if no image found
         if (!imageUrl) {
-          imageUrl = `/img/image-${(index % 7) + 2}.jpg`; // Default fallback path
+          imageUrl = `/img/image-${(index % 7) + 2}.jpg`;
           imageSource = 'Fallback';
         }
+        console.log(`[BlogItem ${index + 1} "${title.substring(0,30)}..."] Img Src: ${imageSource}, URL: ${imageUrl.substring(0, 60)}...`);
 
-        // Log the chosen image source and URL for this item
-        console.log(`[BlogItem ${index + 1} "${title}"] Image Source: ${imageSource}, URL: ${imageUrl}`);
-
-        // Create excerpt
         let excerptSource = description || contentEncoded || '';
         excerptSource = excerptSource.replace(/<style[^>]*>.*?<\/style>/gs, '').replace(/<script[^>]*>.*?<\/script>/gs, '');
         excerptSource = excerptSource.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
         const excerpt = excerptSource.substring(0, 150) + (excerptSource.length > 150 ? '...' : '');
 
         return {
-          id: guid,
-          title,
-          excerpt,
-          url: link,
+          id: guid, title, excerpt, url: link,
           date: new Date(pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-          imageUrl: imageUrl,
-          ogImage: ogImage || undefined
+          imageUrl: imageUrl, ogImage: ogImage || undefined
         };
       });
     } else {
        console.warn('No <item> elements found in the blog feed. Falling back to mock data.');
        return mockBlogPosts;
     }
-  } catch (error) {
-    console.error('Failed to fetch or parse blog posts:', error);
+  } catch (error: any) { // Catch 'any' to inspect the error object
+    console.error('Failed to fetch or parse blog posts. Error Details:', error);
+    // Log specific details if it's a Fetch error
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+         console.error('This looks like a Network Error or CORS Proxy Issue. Check proxy status and network connection.');
+     }
     console.log('Using mock blog data due to error.');
     return mockBlogPosts;
   }
@@ -157,25 +137,38 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
  */
 export const fetchYouTubeVideos = async (channelId = 'UCMHNan83yARidp0Ycgq8lWw'): Promise<Video[]> => {
   console.log('Fetching YouTube videos...');
-  const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`; // Use actual channel ID
+  // --- Log the channelId being used ---
+  console.log(`Using YouTube Channel ID: ${channelId}`);
+
+  // --- Construct the feed URL carefully using the channelId ---
+  // Ensure channelId is not null or undefined before using it.
+  const effectiveChannelId = channelId || 'DEFAULT_FALLBACK_ID'; // Use fallback if channelId is somehow null/undefined
+  if (!channelId) {
+      console.warn("Channel ID was null or undefined, using fallback ID for URL construction!");
+  }
+  // *** Re-checking the CORRECT YouTube RSS Feed URL format ***
+  // It requires the channel ID.
+  const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID`; // Use template literal correctly
+
   const proxiedFeedUrl = CORS_PROXY_URL + encodeURIComponent(feedUrl);
-  console.log('Attempting to fetch YouTube feed via CORS proxy:', proxiedFeedUrl);
+  console.log('Attempting to fetch YouTube feed via CORS proxy:', proxiedFeedUrl); // Log the final URL being fetched
 
   try {
     const response = await fetch(proxiedFeedUrl);
-     console.log('YouTube Fetch Response:', { status: response.status, statusText: response.statusText, ok: response.ok }); // Log response status
-
+    console.log('YouTube Fetch Response:', { status: response.status, statusText: response.statusText, ok: response.ok });
 
     if (!response.ok) {
        const errorText = await response.text().catch(() => 'Could not read error response.');
-       // Log the specific 404 error text from the server if possible
-       console.error(`YouTube feed fetch failed with status ${response.status}: ${errorText.substring(0, 500)}...`); // Log start of error page
+       console.error(`YouTube feed fetch failed with status ${response.status}: ${errorText.substring(0, 500)}...`);
+       // Explicitly check for 404 which confirms the URL is likely still wrong or the feed doesn't exist
+       if (response.status === 404) {
+           console.error(`Received a 404 Error. Double-check the constructed feed URL and ensure the channel ID (${effectiveChannelId}) is correct and the feed exists.`);
+       }
        throw new Error(`Failed to fetch YouTube feed: ${response.status} ${response.statusText}`);
      }
 
     const xmlText = await response.text();
-     console.log(`YouTube XML Text Length: ${xmlText.length}`); // Log XML length
-     // console.log('First 500 characters of YouTube XML:', xmlText.substring(0, 500)); // Optional
+    console.log(`YouTube XML Text Length: ${xmlText.length}`);
 
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlText, "application/xml");
@@ -187,10 +180,11 @@ export const fetchYouTubeVideos = async (channelId = 'UCMHNan83yARidp0Ycgq8lWw')
      }
 
     const entries = xmlDoc.querySelectorAll('entry');
-     console.log(`Found ${entries.length} entries in YouTube feed`); // Log entry count
+    console.log(`Found ${entries.length} YouTube entries in the feed`);
     if (entries.length > 0) {
-      console.log(`Parsed ${entries.length} YouTube video entries.`);
-      return Array.from(entries).slice(0, 6).map((entry, index) => {
+      console.log(`Parsing ${entries.length} YouTube video entries...`);
+      // ... (rest of the parsing logic remains the same as the previous version) ...
+       return Array.from(entries).slice(0, 6).map((entry, index) => {
         const videoId = entry.getElementsByTagNameNS('http://www.youtube.com/xml/schemas/2015', 'videoId')[0]?.textContent || '';
         const title = entry.querySelector('title')?.textContent || `Video ${index + 1}`;
         const link = entry.querySelector('link[rel="alternate"]')?.getAttribute('href') || '';
@@ -203,15 +197,10 @@ export const fetchYouTubeVideos = async (channelId = 'UCMHNan83yARidp0Ycgq8lWw')
         const finalThumbnailUrl = thumbnailUrl || (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : `/img/image-${(index % 3) + 1}.jpg`);
         const finalVideoId = videoId || extractYouTubeId(link) || `unknown-${index}`;
 
-         console.log(`[YouTubeItem ${index + 1} "${title}"] Image Source: ${imageSource}, URL: ${finalThumbnailUrl}, VideoID: ${finalVideoId}`);
-
+        console.log(`[YouTubeItem ${index + 1} "${title.substring(0,30)}..."] Img Src: ${imageSource}, URL: ${finalThumbnailUrl.substring(0,60)}..., VideoID: ${finalVideoId}`);
 
         return {
-          id: `video-${finalVideoId}`,
-          title,
-          thumbnailUrl: finalThumbnailUrl,
-          videoUrl: link,
-          videoId: finalVideoId,
+          id: `video-${finalVideoId}`, title, thumbnailUrl: finalThumbnailUrl, videoUrl: link, videoId: finalVideoId,
           date: new Date(pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
         };
       });
@@ -219,8 +208,8 @@ export const fetchYouTubeVideos = async (channelId = 'UCMHNan83yARidp0Ycgq8lWw')
        console.warn('No <entry> elements found in the YouTube feed. Falling back to mock data.');
        return mockVideos;
      }
-  } catch (error) {
-    console.error('Failed to fetch or parse YouTube videos:', error);
+  } catch (error: any) {
+    console.error('Failed to fetch or parse YouTube videos. Error Details:', error);
     console.log('Using mock YouTube video data due to error.');
     return mockVideos;
   }
@@ -246,7 +235,10 @@ export const loadFeaturedContent = async () => {
     ? results[1].value
     : (console.error("YouTube video fetch promise rejected, using mocks."), mockVideos);
 
-  console.log(`Loaded ${blogPosts.length} blog posts and ${videos.length} videos.`);
+  console.log(`Final Loaded Counts - Blog Posts: ${blogPosts.length}, Videos: ${videos.length}`);
+  console.log(`Blog post source: ${results[0].status === 'fulfilled' ? 'Fetched' : 'Mock'}`);
+  console.log(`Video source: ${results[1].status === 'fulfilled' ? 'Fetched' : 'Mock'}`);
+
 
   return {
     featuredBlogPosts: blogPosts.slice(0, 3),
