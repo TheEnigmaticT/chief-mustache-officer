@@ -24,15 +24,16 @@ const CyclingBackgroundImage = () => {
     }, 20000); // 20s interval
 
     return () => clearInterval(interval);
-  }, []);
+  }, [images.length]);
 
   return (
-    <div className="absolute inset-0 w-full h-full overflow-hidden">
+    <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
+      <div className="absolute inset-0 bg-navy bg-opacity-80 z-10"></div>
       {images.map((image, index) => (
         <div
           key={image}
           className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-            currentImageIndex === index ? 'opacity-100' : 'opacity-0'
+            currentImageIndex === index ? 'opacity-50' : 'opacity-0'
           }`}
           style={{ backgroundImage: `url(${image})` }}
         />

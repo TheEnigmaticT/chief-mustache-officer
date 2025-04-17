@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import RobustImage from './RobustImage';
 import CyclingBackgroundImage from './CyclingBackgroundImage';
@@ -16,7 +17,7 @@ const Hero = () => {
   ];
 
   return (
-    <section className="pt-32 pb-32 bg-gradient-to-br from-navy to-navy-light relative overflow-hidden">
+    <section className="pt-32 pb-32 bg-navy relative overflow-hidden">
       <CyclingBackgroundImage />
       <div className="container mx-auto px-4 md:px-8 relative z-10">
         <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -45,7 +46,7 @@ const Hero = () => {
               src="/img/cmo.jpg"
               fallbacks={possibleImagePaths.slice(1).concat(fallbackPaths)}
               alt="Trevor Longino" 
-              className="rounded-lg shadow-xl w-full max-w-sm object-cover"
+              className="rounded-lg shadow-xl w-full max-w-sm object-cover relative z-20"
               height="320px"
             />
           </div>
