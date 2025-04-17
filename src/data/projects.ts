@@ -25,7 +25,7 @@ export const projects: Project[] = [
   {
     id: "2",
     title: "HeyGail - AI Meeting Assistant",
-    imageUrl: "/img/hg_web.png"
+    imageUrl: "/img/hg_web.png", // Added missing comma
     description: "An AI-powered meeting assistant that helps teams capture action items, decisions, and key points from meetings, enabling better follow-through and team alignment.",
     technologies: ["AI", "NLP", "Meeting Software", "Productivity"],
     liveUrl: "https://heygail.com",
@@ -35,7 +35,7 @@ export const projects: Project[] = [
   {
     id: "3",
     title: "Insight by CrowdTamers",
-    imageUrl: "/img/insight.png"
+    imageUrl: "/img/insight.png", // Added missing comma
     description: "Data analytics and insights platform for growth marketers, providing actionable marketing intelligence to optimize campaigns and improve ROI.",
     technologies: ["Data Analytics", "Marketing Intelligence", "Dashboard"],
     liveUrl: "https://insight.crowdtamers.com",
@@ -45,7 +45,7 @@ export const projects: Project[] = [
   {
     id: "4",
     title: "Validate First Book",
-    imageUrl: "/img/validate.png"
+    imageUrl: "/img/validate.png", // Added missing comma
     description: "A comprehensive guide for entrepreneurs on validating business ideas before investing significant resources, based on experience launching over 100 startups.",
     technologies: ["Product Validation", "Startup Methodology", "User Research"],
     liveUrl: "https://crowdtamers.gumroad.com/l/validate",
@@ -54,7 +54,7 @@ export const projects: Project[] = [
   {
     id: "5",
     title: "Modern Open Culture",
-    imageUrl: "/img/ow.png"
+    imageUrl: "/img/ow.png", // Added missing comma
     description: "Open source guide on how to run teams effectively in today's distributed work environment, focusing on transparency, autonomy, and results-oriented management.",
     technologies: ["Team Management", "Leadership", "Open Source"],
     repoUrl: "https://github.com/TheEnigmaticT/modern_open_culture",
@@ -63,7 +63,7 @@ export const projects: Project[] = [
   {
     id: "6",
     title: "Midline - Retro MIDI Game Library",
-    imageUrl: "/img/midline.png"
+    imageUrl: "/img/midline.png", // Added missing comma
     description: "A library for creating retro-style video games with MIDI sound integration, combining nostalgic gameplay with modern development practices.",
     technologies: ["Game Development", "MIDI", "JavaScript"],
     repoUrl: "https://github.com/TheEnigmaticT/midline",
