@@ -1,10 +1,8 @@
-
 import { Link } from 'react-router-dom';
-import { ArrowDownCircle } from 'lucide-react';
 import RobustImage from './RobustImage';
+import CyclingBackgroundImage from './CyclingBackgroundImage';
 
 const Hero = () => {
-  
   // Provide multiple fallbacks
   const fallbackPaths = [
     "/placeholder.svg"
@@ -18,8 +16,9 @@ const Hero = () => {
   ];
 
   return (
-    <section className="pt-24 pb-16 md:py-32 bg-gradient-to-br from-navy to-navy-light">
-      <div className="container mx-auto px-4 md:px-8">
+    <section className="pt-32 pb-32 bg-gradient-to-br from-navy to-navy-light relative overflow-hidden">
+      <CyclingBackgroundImage />
+      <div className="container mx-auto px-4 md:px-8 relative z-10">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div className="order-2 md:order-1 animate-fadeIn">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
@@ -50,16 +49,6 @@ const Hero = () => {
               height="320px"
             />
           </div>
-        </div>
-
-        <div className="mt-16 flex justify-center">
-          <a 
-            href="#content" 
-            className="text-white hover:text-mustache transition-all transform hover:translate-y-1"
-            aria-label="Scroll down"
-          >
-            <ArrowDownCircle size={40} />
-          </a>
         </div>
       </div>
     </section>

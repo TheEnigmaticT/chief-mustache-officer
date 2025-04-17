@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -23,13 +22,13 @@ const Navbar = () => {
     <header className="fixed w-full bg-white/90 backdrop-blur-sm z-50 shadow-sm">
       <div className="container mx-auto px-4 md:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Logo - updated to show full logo */}
           <Link to="/" className="flex items-center">
             <RobustImage 
               src={logoPath}
               fallbacks={logoFallbacks}
               alt="Chief Mustache Officer"
-              className="h-8 w-8 rounded-full object-cover"
+              className="h-12 w-auto object-contain"
               loading="eager"
             />
           </Link>
