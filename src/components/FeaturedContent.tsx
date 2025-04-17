@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { ExternalLink, Youtube, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -55,7 +56,7 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
             Check out my latest blog posts and videos on marketing, growth, and startup success
           </p>
-          <!--
+          {/* 
             <Button 
             variant="outline"
             size="sm"
@@ -64,7 +65,7 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
             <Download size={16} />
             Download Logs
           </Button>
-            --!>
+            */}
         </div>
 
         <div className="grid md:grid-cols-2 gap-12">
