@@ -10,31 +10,31 @@ export interface Testimonial {
 export const testimonials: Testimonial[] = [
   {
     id: "1",
-    text: "When I want to trust someone with our GTM, Trevor is the best. We gave him a month to build out our GTM strategy from scratch, and he built a self-sustaining marketing strategy that doubled the number of student projects on Lovable. This is the definition of very good work.",
-    author: "Justin Chalker",
-    position: "COO",
-    company: "Lovable AI"
+    text: "I learned more in 20 minutes with Trevor than I did in 56 years.",
+    author: "Christioher Carter",
+    position: "CEO",
+    company: "Approyo"
   },
   {
     id: "2",
-    text: "Trevor is a seasoned marketing leader who has served as fractional CMO for a number of startups. His ability to take products to market is only surpassed by his breadth of SaaS and gaming experience. I strongly recommend Trevor for senior marketing roles, he will be an impact player immediately.",
-    author: "Wes Cummings",
-    position: "Founder",
-    company: "Recruiter.com"
+    text: "Trevor is a F&*#ing genius."
+    author: "Dane Maxwell",
+    position: "Founder & CEO",
+    company: "ResultsJam"
   },
   {
     id: "3",
-    text: "I've worked with countless marketing professionals in my 25+ year career. Trevor may be the best marketing mind I've ever encountered.",
-    author: "Garin Hess",
-    position: "Founder & CEO",
-    company: "Consensus"
+    text: "Trevor's disciplined and structured approach to achieving growth is a breath of fresh air. He is a master at breaking down complex topics and making them approachable, and a teremendous performance-driven marketer.",
+    author: "Jonathan Greechan",
+    position: "CEO",
+    company: "Founder Institute"
   },
   {
     id: "4",
-    text: "Trevor has a meaningful advantage over a lot of marketers: he has experience on both the technical and creative sides. Having that level of empathy for the entire process makes him a more effective, mindful leader and creative.",
-    author: "Chris Paul",
-    position: "Co-Founder & CEO",
-    company: "Literal Humans"
+    text: "Trevor runs the first marketing agency I've worked with where they give a crap about the results, not just their KPIs.",
+    author: "Inbar Yagur",
+    position: "CMO",
+    company: "GrowthSpace"
   },
   {
     id: "5",
@@ -52,9 +52,9 @@ export const testimonials: Testimonial[] = [
   },
   {
     id: "7",
-    text: "I've been working with Trevor for more than 2 months now, and it was one of the best decisions I've ever made. He helped me discover who my ideal customer is and helped me get clarity on my ICP.",
-    author: "Zawwadul Sami",
+    text: "The best resource for direct and actionable advice on how to grow your startup.",
+    author: "Ahmed Jamal",
     position: "Founder",
-    company: "IndieAdvisers"
+    company: "Padash"
   }
 ];
