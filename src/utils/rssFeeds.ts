@@ -1,4 +1,3 @@
-
 // src/utils/rssFeeds.ts
 
 import { blogPosts as mockBlogPosts, videos as mockVideos } from '../data/publications';
@@ -180,7 +179,7 @@ export const loadFeaturedContent = async () => {
     console.log('>>> loadFeaturedContent returning data.');
 
     return {
-      featuredBlogPosts: blogPosts.slice(0, 3),
+      featuredBlogPosts: blogPosts.slice(0, 4), // Change from 3 to 4
       featuredVideos: videos.slice(0, 6),
       allBlogPosts: blogPosts,
       allVideos: videos
@@ -190,7 +189,7 @@ export const loadFeaturedContent = async () => {
     console.error('>>> Critical error in loadFeaturedContent:', error);
     const mockVidsWithEmbed = mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : '' }));
     return {
-       featuredBlogPosts: mockBlogPosts.slice(0, 3),
+       featuredBlogPosts: mockBlogPosts.slice(0, 4), // Change from 3 to 4
        featuredVideos: mockVidsWithEmbed.slice(0, 6),
        allBlogPosts: mockBlogPosts,
        allVideos: mockVidsWithEmbed
