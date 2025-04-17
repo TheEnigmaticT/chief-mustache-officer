@@ -2,6 +2,7 @@
 
 import { blogPosts as mockBlogPosts, videos as mockVideos } from '../data/publications';
 import { extractYouTubeId, debugLog } from './imageUtils';
+import { supabase } from "@/integrations/supabase/client";
 
 // --- Interfaces ---
 export interface BlogPost {
@@ -88,7 +89,7 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
 };
 
 /**
- * Fetches YouTube video feed using RSS2JSON.COM API.
+ * Fetches YouTube video feed using Supabase Edge Function
  */
 export const fetchYouTubeVideos = async (): Promise<Video[]> => {
   try {
@@ -97,27 +98,18 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
     
     if (error) {
       console.error('Error fetching videos:', error);
-      return mockVideos.map(v => ({
-        ...v,
-        embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : ''
-      }));
+      return mockVideos;
     }
 
     if (!Array.isArray(response)) {
       console.error('Invalid response format:', response);
-      return mockVideos.map(v => ({
-        ...v,
-        embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : ''
-      }));
+      return mockVideos;
     }
 
     return response;
   } catch (error) {
     console.error('Failed to fetch YouTube videos:', error);
-    return mockVideos.map(v => ({
-      ...v,
-      embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : ''
-    }));
+    return mockVideos;
   }
 };
 

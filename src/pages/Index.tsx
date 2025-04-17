@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import Hero from '../components/Hero';
 import FeaturedContent from '../components/FeaturedContent';
@@ -48,6 +49,7 @@ const mockVideos: Video[] = [
     thumbnailUrl: '/img/image-7',
     videoUrl: 'https://www.youtube.com/watch?v=example1',
     videoId: 'dQw4w9WgXcQ',
+    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     date: '2025-03-10'
   },
   {
@@ -56,6 +58,7 @@ const mockVideos: Video[] = [
     thumbnailUrl: '/img/image-8',
     videoUrl: 'https://www.youtube.com/watch?v=example2',
     videoId: '9bZkp7q19f0',
+    embedUrl: 'https://www.youtube.com/embed/9bZkp7q19f0',
     date: '2025-02-25'
   },
   {
@@ -64,6 +67,7 @@ const mockVideos: Video[] = [
     thumbnailUrl: '/img/image-2',
     videoUrl: 'https://www.youtube.com/watch?v=example3',
     videoId: 'jNQXAC9IVRw',
+    embedUrl: 'https://www.youtube.com/embed/jNQXAC9IVRw',
     date: '2025-02-15'
   },
   {
@@ -72,6 +76,7 @@ const mockVideos: Video[] = [
     thumbnailUrl: '/img/image-3',
     videoUrl: 'https://www.youtube.com/watch?v=example4',
     videoId: 'Y-P0Hs0ADJY',
+    embedUrl: 'https://www.youtube.com/embed/Y-P0Hs0ADJY',
     date: '2025-02-05'
   }
 ];
