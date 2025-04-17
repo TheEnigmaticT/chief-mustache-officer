@@ -37,7 +37,6 @@ const isYouTubeShort = (videoUrl: string): boolean => {
 
 const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps) => {
   const [failedVideos, setFailedVideos] = useState<Record<string, boolean>>({});
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
   const getFallbackImage = (index: number): string => {
     const imageNum = (index % 7) + 2;
@@ -47,10 +46,6 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
   const regularVideos = featuredVideos.filter(video => !isYouTubeShort(video.videoUrl));
 
   const shortVideos: Video[] = [];
-
-  const handleVideoClick = (videoId: string) => {
-    setSelectedVideo(prev => prev === videoId ? null : videoId);
-  };
 
   return (
     <section id="content" className="section bg-white">
@@ -128,71 +123,31 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
             </div>
             
             <div className="space-y-6">
-              {regularVideos.slice(0, 4).map((video, index) => {
-                const fallbacks = [
-                  video.thumbnailUrl,
-                  `https://i.ytimg.com/vi/${video.videoId}/maxresdefault.jpg`,
-                  `https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`,
-                  getFallbackImage(index),
-                  getFallbackImage(index) + '.png',
-                  '/placeholder.svg'
-                ].filter(Boolean);
-                
-                return (
-                  <div key={video.id} className="overflow-hidden rounded-lg shadow-md">
-                    <div className="aspect-video w-full relative">
-                      {selectedVideo === video.videoId ? (
-                        <a 
-                          href={`https://www.youtube.com/watch?v=${video.videoId}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block w-full h-full"
-                        >
-                          <div className="relative w-full h-full">
-                            <RobustImage
-                              src={`https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`}
-                              fallbacks={fallbacks}
-                              alt={video.title}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center">
-                              <Youtube className="text-white" size={48} />
-                              <p className="text-white mt-2 font-semibold text-center px-2">Click to watch on YouTube</p>
-                            </div>
-                          </div>
-                        </a>
-                      ) : (
-                        <div 
-                          className="relative w-full h-full cursor-pointer" 
-                          onClick={() => handleVideoClick(video.videoId)}
-                        >
-                          <RobustImage
-                            src={`https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`}
-                            fallbacks={fallbacks}
-                            alt={video.title}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center hover:bg-opacity-50 transition-all">
-                            <Youtube className="text-white" size={48} />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <h4 className="font-medium text-navy">{video.title}</h4>
-                      <p className="text-sm text-gray-500 mt-1">{video.date}</p>
-                      <a 
-                        href={video.videoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-mustache hover:text-mustache-light font-medium mt-2"
-                      >
-                        Watch on YouTube <ExternalLink size={16} className="ml-1" />
-                      </a>
-                    </div>
+              {regularVideos.slice(0, 4).map((video) => (
+                <div key={video.id} className="overflow-hidden rounded-lg shadow-md">
+                  <div className="aspect-video w-full">
+                    <iframe
+                      src={video.embedUrl}
+                      title={video.title}
+                      className="w-full h-full"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
                   </div>
-                );
-              })}
+                  <div className="p-3">
+                    <h4 className="font-medium text-navy">{video.title}</h4>
+                    <p className="text-sm text-gray-500 mt-1">{video.date}</p>
+                    <a 
+                      href={video.videoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-mustache hover:text-mustache-light font-medium mt-2"
+                    >
+                      Watch on YouTube <ExternalLink size={16} className="ml-1" />
+                    </a>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {shortVideos.length > 0 && (
