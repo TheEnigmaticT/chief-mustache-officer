@@ -1,3 +1,4 @@
+
 // src/utils/rssFeeds.ts
 
 import { blogPosts as mockBlogPosts, videos as mockVideos } from '../data/publications';
@@ -98,18 +99,30 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
     
     if (error) {
       console.error('Error fetching videos:', error);
-      return mockVideos;
+      // Make sure to add embedUrl to each mock video
+      return mockVideos.map(v => ({
+        ...v,
+        embedUrl: v.embedUrl || `https://www.youtube.com/embed/${v.videoId}`
+      }));
     }
 
     if (!Array.isArray(response)) {
       console.error('Invalid response format:', response);
-      return mockVideos;
+      // Make sure to add embedUrl to each mock video
+      return mockVideos.map(v => ({
+        ...v,
+        embedUrl: v.embedUrl || `https://www.youtube.com/embed/${v.videoId}`
+      }));
     }
 
     return response;
   } catch (error) {
     console.error('Failed to fetch YouTube videos:', error);
-    return mockVideos;
+    // Make sure to add embedUrl to each mock video
+    return mockVideos.map(v => ({
+      ...v,
+      embedUrl: v.embedUrl || `https://www.youtube.com/embed/${v.videoId}`
+    }));
   }
 };
 

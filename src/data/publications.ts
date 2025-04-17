@@ -1,3 +1,4 @@
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -17,7 +18,7 @@ export interface Video {
   videoId: string;
   date: string;
   featured?: boolean;
-  embedUrl?: string;
+  embedUrl: string; // Changed from optional to required to match the interface in rssFeeds.ts
 }
 
 export const blogPosts: BlogPost[] = [
