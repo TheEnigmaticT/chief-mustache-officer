@@ -1,4 +1,3 @@
-
 export interface BlogPost {
   id: string;
   title: string;
@@ -18,6 +17,7 @@ export interface Video {
   videoId: string;
   date: string;
   featured?: boolean;
+  embedUrl?: string;
 }
 
 export const blogPosts: BlogPost[] = [
@@ -101,7 +101,8 @@ export const videos: Video[] = [
     title: "5 Marketing Strategies That Actually Work for Early-Stage Startups",
     thumbnailUrl: "/img/image-7",
     videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    videoId: "dQw4w9WgXcQ", // Real YouTube video ID
+    videoId: "dQw4w9WgXcQ",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     date: "August 12, 2023",
     featured: true
   },
@@ -110,7 +111,8 @@ export const videos: Video[] = [
     title: "How to Create a Go-to-Market Strategy That Actually Works",
     thumbnailUrl: "/img/image-8",
     videoUrl: "https://www.youtube.com/watch?v=9bZkp7q19f0",
-    videoId: "9bZkp7q19f0", // Real YouTube video ID (Gangnam Style)
+    videoId: "9bZkp7q19f0",
+    embedUrl: "https://www.youtube.com/embed/9bZkp7q19f0",
     date: "July 25, 2023",
     featured: true
   },
@@ -119,7 +121,8 @@ export const videos: Video[] = [
     title: "The Content Marketing Framework I Used to Scale 15 Startups",
     thumbnailUrl: "/img/image-2",
     videoUrl: "https://www.youtube.com/watch?v=jNQXAC9IVRw",
-    videoId: "jNQXAC9IVRw", // First YouTube video ever
+    videoId: "jNQXAC9IVRw",
+    embedUrl: "https://www.youtube.com/embed/jNQXAC9IVRw",
     date: "June 18, 2023",
     featured: true
   },
@@ -128,7 +131,8 @@ export const videos: Video[] = [
     title: "Positioning Your B2B SaaS for Maximum Growth",
     thumbnailUrl: "/img/image-3",
     videoUrl: "https://www.youtube.com/watch?v=Y-P0Hs0ADJY",
-    videoId: "Y-P0Hs0ADJY", // Another popular YouTube video
+    videoId: "Y-P0Hs0ADJY",
+    embedUrl: "https://www.youtube.com/embed/Y-P0Hs0ADJY",
     date: "May 30, 2023"
   },
   {
@@ -136,7 +140,8 @@ export const videos: Video[] = [
     title: "Why Most Startup Marketing Fails (And How to Fix It)",
     thumbnailUrl: "/img/image-6",
     videoUrl: "https://www.youtube.com/watch?v=M7lc1UVf-VE",
-    videoId: "M7lc1UVf-VE", // Google I/O video
+    videoId: "M7lc1UVf-VE",
+    embedUrl: "https://www.youtube.com/embed/M7lc1UVf-VE",
     date: "April 22, 2023"
   },
   {
@@ -144,7 +149,8 @@ export const videos: Video[] = [
     title: "Building Your First Growth Team: Roles and Responsibilities",
     thumbnailUrl: "/img/image-1",
     videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    videoId: "dQw4w9WgXcQ", // Rick Roll
+    videoId: "dQw4w9WgXcQ",
+    embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     date: "March 15, 2023"
   }
 ];

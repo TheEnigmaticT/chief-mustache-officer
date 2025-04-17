@@ -4,16 +4,24 @@ import { blogPosts as mockBlogPosts, videos as mockVideos } from '../data/public
 import { extractYouTubeId, debugLog } from './imageUtils';
 
 // --- Interfaces ---
-export interface BlogPost { /* ... */ }
+export interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  url: string;
+  date: string;
+  imageUrl?: string;
+  ogImage?: string;
+}
+
 export interface Video {
   id: string;
   title: string;
   thumbnailUrl: string;
   videoUrl: string;
   videoId: string;
-  embedUrl: string; // Keep this from the previous step
+  embedUrl: string;
   date: string;
-  featured?: boolean; // Keep if using mock data structure
 }
 
 // --- Constants ---
@@ -34,7 +42,6 @@ const KNOWN_GOOD_PLACEHOLDER = '/placeholder.svg';
 
 // fetchBlogPosts remains the same...
 export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
-    // ... (No changes needed here) ...
     console.log('🚀 Blog Posts Fetch Attempt (Parsing Feed Images)');
     console.log('Attempting to fetch blog feed URL:', PROXIED_BLOG_FEED_URL);
     try {
@@ -84,90 +91,33 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
  * Fetches YouTube video feed using RSS2JSON.COM API.
  */
 export const fetchYouTubeVideos = async (): Promise<Video[]> => {
-  console.log('Fetching YouTube videos via RSS2JSON...');
-  // *** Log the CORRECT URL we intend to fetch ***
-  console.log('Attempting to fetch YouTube feed from RSS2JSON Endpoint:', RSS2JSON_YOUTUBE_URL);
-
   try {
-    // *** ENSURE this fetch call uses the RSS2JSON_YOUTUBE_URL constant ***
-    const response = await fetch(RSS2JSON_YOUTUBE_URL);
-    // *** ^^^ THIS IS THE MOST IMPORTANT LINE TO CHECK ^^^ ***
-
-    console.log('RSS2JSON YouTube Fetch Response:', { status: response.status, ok: response.ok });
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '[Could not read response body]');
-      // Log the specific error message from rss2json if available
-      let rss2jsonMessage = '';
-      try {
-          const errorJson = JSON.parse(errorText);
-          rss2jsonMessage = errorJson.message || '';
-      } catch (e) { /* ignore parsing error */ }
-
-      console.error(`RSS2JSON YouTube fetch failed with status ${response.status}: ${rss2jsonMessage || errorText.substring(0,500)}...`);
-
-      // Add specific check for common rss2json errors
-       if (response.status === 500 && (errorText.includes("Cannot download") || errorText.includes("could not be parsed"))) {
-           console.error(">>> RSS2JSON failed to download or parse the target feed. Verify the raw YouTube URL part is correct and accessible: ", YOUTUBE_FEED_URL_RAW + YOUTUBE_CHANNEL_ID);
-           console.error(">>> Also ensure the YouTube Channel ID is correct:", YOUTUBE_CHANNEL_ID);
-       }
-      throw new Error(`RSS2JSON fetch failed: ${response.status} - ${rss2jsonMessage || 'Check Logs'}`); // Include rss2json message
+    console.log('Fetching videos from Supabase Edge Function...');
+    const { data: response, error } = await supabase.functions.invoke('fetch-youtube');
+    
+    if (error) {
+      console.error('Error fetching videos:', error);
+      return mockVideos.map(v => ({
+        ...v,
+        embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : ''
+      }));
     }
 
-    const data = await response.json();
-    console.log('RSS2JSON YouTube Data Received (Status):', data.status);
-
-    if (data.status !== 'ok') {
-      console.error('RSS2JSON service returned an error status:', data.message || data.status);
-      throw new Error(`RSS2JSON service error: ${data.message || data.status}`); // Include rss2json message
+    if (!Array.isArray(response)) {
+      console.error('Invalid response format:', response);
+      return mockVideos.map(v => ({
+        ...v,
+        embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : ''
+      }));
     }
 
-    if (!data.items || !Array.isArray(data.items)) {
-      console.error('RSS2JSON response missing items array or items is not an array:', data);
-      throw new Error('Invalid items data from RSS2JSON');
-    }
-
-    console.log(`RSS2JSON returned ${data.items.length} YouTube items.`);
-     if (data.items.length === 0) {
-         console.warn("No items found in YouTube feed via RSS2JSON. Using mocks.");
-         // Still return mocks structured correctly
-         return mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/$dQw4w9WgXcQ{v.videoId}` : '' }));
-     }
-
-    const videos = data.items.slice(0, 6).map((item: any, index: number): Video => {
-        const videoId = extractYouTubeId(item.link || '') || `unknown-${index}`;
-        const thumbnailUrl = item.thumbnail || (videoId !== `unknown-${index}` ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : KNOWN_GOOD_PLACEHOLDER);
-        const embedUrl = videoId !== `unknown-${index}` ? `https://www.youtube.com/embed/$dQw4w9WgXcQ{videoId}` : '';
-
-        // console.log(`[YouTubeItem ${index + 1} (rss2json)] ID: ${videoId}, EmbedURL: ${embedUrl}`); // Optional: reduce log noise
-
-        return {
-            id: item.guid || `video-${videoId}`, // Use guid from rss2json if available, otherwise fallback
-            title: item.title || `Video ${index + 1}`,
-            thumbnailUrl: thumbnailUrl,
-            videoUrl: item.link || '',
-            videoId: videoId,
-            embedUrl: embedUrl,
-            date: new Date(item.pubDate || Date.now()).toLocaleDateString('en-US', {
-              year: 'numeric', month: 'long', day: 'numeric'
-            })
-            // Note: Mock data has 'featured', real data doesn't. Handle in component or adjust mock data.
-        };
-    });
-
-    console.log("Finished processing YouTube items from RSS2JSON.");
-    return videos;
-
-  } catch (error: any) {
-    // Log the actual error object from the catch block
-    console.error('Failed during fetchYouTubeVideos (RSS2JSON). Caught Error:', error);
-    // Add the error message if available
-    if (error.message) {
-        console.error("Error Message:", error.message);
-    }
-    console.log('Using mock YouTube video data due to RSS2JSON error.');
-    // Ensure mock data also gets the embedUrl if possible
-    return mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/$dQw4w9WgXcQ{v.videoId}` : '' }));
+    return response;
+  } catch (error) {
+    console.error('Failed to fetch YouTube videos:', error);
+    return mockVideos.map(v => ({
+      ...v,
+      embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : ''
+    }));
   }
 };
 
@@ -205,7 +155,7 @@ export const loadFeaturedContent = async () => {
       // console.log('>>> YouTube videos promise fulfilled.'); // Redundant with below
       videos = results[1].value;
       // Check if mock data was returned by fetchYouTubeVideos (due to internal error)
-       if (videos === mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/$dQw4w9WgXcQ{v.videoId}` : '' }))) { // Check if it's the mapped mock data
+       if (videos === mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : '' }))) { // Check if it's the mapped mock data
            console.log('>>> YouTube videos fetch failed internally, using mock data.');
            videoSource = 'Mock (Fetch Failed)';
        } else {
@@ -215,7 +165,7 @@ export const loadFeaturedContent = async () => {
     } else {
       // This case might not be hit if fetchYouTubeVideos always catches and returns mocks
       console.error('>>> YouTube videos fetch promise rejected:', results[1].reason);
-      videos = mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/$dQw4w9WgXcQ{v.videoId}` : '' })); // Use mock data
+      videos = mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : '' })); // Use mock data
       videoSource = 'Mock (Promise Rejected)';
     }
 
@@ -233,7 +183,7 @@ export const loadFeaturedContent = async () => {
 
   } catch (error) {
     console.error('>>> Critical error in loadFeaturedContent:', error);
-    const mockVidsWithEmbed = mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/$dQw4w9WgXcQ{v.videoId}` : '' }));
+    const mockVidsWithEmbed = mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : '' }));
     return {
        featuredBlogPosts: mockBlogPosts.slice(0, 3),
        featuredVideos: mockVidsWithEmbed.slice(0, 6),
