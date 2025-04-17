@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { ExternalLink, Youtube, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -95,8 +94,8 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
                         src={primaryImage || fallbacks[0]}
                         fallbacks={fallbacks}
                         alt={post.title} 
-                        className="w-full h-48 object-cover hover:scale-105 transition-transform"
-                        height="192px"
+                        className="w-full h-64 object-cover hover:scale-105 transition-transform" // Increased height
+                        height="256px" // Increased height
                       />
                     </div>
                     <h4 className="text-xl font-semibold mb-2">{post.title}</h4>
