@@ -17,7 +17,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     id: "2",
-    text: "Trevor is a F&*#ing genius."
+    text: "Trevor is a F&*#ing genius.",
     author: "Dane Maxwell",
     position: "Founder & CEO",
     company: "ResultsJam"
