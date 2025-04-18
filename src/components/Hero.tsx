@@ -29,8 +29,7 @@ const Hero = () => {
               The AI-powered CMO (That's "Chief Mustache Officer")
             </h2>
             <p className="text-lg text-gray-300 mb-8 max-w-lg">
-              I've launched 130 startups, mentored thousands, and built 119 million-dollar 
-              marketing engines. I help startups grow from $0 to $3MM+ ARR.
+              I've built 119 million-dollar marketing engines for everything from new startups to trillion-dollar banks. Wanna learn how?.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link to="/cv" className="btn btn-primary btn-lg">
