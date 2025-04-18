@@ -3,10 +3,10 @@ export interface LearningResource {
   id: string;
   title: string;
   description: string;
-  type: 'course' | 'mentoring' | 'resource';
+  type: 'course' | 'mentoring' | 'resource' | 'podcast';
   imageUrl: string;
   url?: string;
-  status: 'available' | 'coming-soon';
+  status: 'available' | 'coming-soon' | 'closed';
   category: string;
 }
 
@@ -69,7 +69,7 @@ export const learningResources: LearningResource[] = [
     url: 'https://youtu.be/R4aN-IiPCRw?si=VLeVZEGsbgSDNMnM',
     status: 'available',
     category: 'Resource Library',
-  }
+  },
   {
     id: '7',
     title: 'Early Stage GTM with Narrate Marketing',
@@ -79,7 +79,7 @@ export const learningResources: LearningResource[] = [
     url: 'https://youtu.be/DoBfkARsL-U?si=PCohpAs6qiph202r',
     status: 'available',
     category: 'Resource Library',
-  }
+  },
   {
     id: '8',
     title: 'Build, Iterate, and Scale',
@@ -89,7 +89,7 @@ export const learningResources: LearningResource[] = [
     url: 'https://youtu.be/ne8mwCwK7fE?si=sizWwC71XP8zbfv9',
     status: 'available',
     category: 'Resource Library',
-  }
+  },
   {
     id: '9',
     title: 'Revenue Makes the Rocking World Go Round',
