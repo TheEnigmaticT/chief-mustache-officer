@@ -51,9 +51,9 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
     <section id="content" className="section bg-white">
       <div className="container mx-auto">
         <div className="mb-12 text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold text-navy mb-4">Latest Content</h2>
+          <h2 className="text-3xl md:text-4xl font-semibold text-navy mb-4">What I'm Saying</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
-            Check out my latest blog posts and videos on marketing, growth, and startup success
+            My latest blog posts and videos on marketing, growth, and startup success
           </p>
           {/* 
             <Button 
@@ -70,7 +70,7 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
         <div className="grid md:grid-cols-2 gap-12">
           <div>
             <div className="flex items-center mb-6">
-              <h3 className="text-2xl font-semibold text-navy">Featured Blog Posts</h3>
+              <h3 className="text-2xl font-semibold text-navy">Recent Blog Posts</h3>
               <Link to="/publications" className="ml-auto text-mustache hover:text-mustache-light text-sm font-medium">
                 View All →
               </Link>
