@@ -54,7 +54,7 @@ export const learningResources: LearningResource[] = [
   {
     id: '5',
     title: 'The 9 Week Guide to building a Million-Dollar Marketing Engine (with Founder Institute)',
-    description: 'I've built 100+ Million-Dollar Marketing Engines. Here's how.',
+    description: "I've built 100+ Million-Dollar Marketing Engines. Here's how.",
     type: 'resource',
     imageUrl: '/img/fi_9weeks.png',
     status: 'available',
@@ -73,7 +73,7 @@ export const learningResources: LearningResource[] = [
   {
     id: '7',
     title: 'Early Stage GTM with Narrate Marketing',
-    description: 'When it's early days, you have to be thrifty with marketing. Here's how I'd do it.',
+    description: "When it's early days, you have to be thrifty with marketing. Here's how I'd do it.",
     type: 'podcast',
     imageUrl: '/img/early_gtm.png',
     url: 'https://youtu.be/DoBfkARsL-U?si=PCohpAs6qiph202r',
