@@ -42,7 +42,7 @@ const Navbar = () => {
               CV
             </Link>
             <Link to="/publications" className="text-navy hover:text-mustache transition-colors font-medium">
-              Publications
+              Content
             </Link>
             <Link to="/projects" className="text-navy hover:text-mustache transition-colors font-medium">
               Projects
