@@ -8,11 +8,12 @@ const Hero = () => {
   const cyclingImages = useMemo(() => [
     "/img/cmo.jpg",
     '/img/openart-ceaa5b2983ea4ebdafeeae73331dcfa7_raw.jpg',
-    '/img/openart-254428c2-b6df-46c1-a27a-23b87bf21d21.jpg',
+    '/img/openart-254428c2-b6df-46c1-a27a-23b87bf21d21.png',
     '/img/openart-image_HZDb0jVj_1743562905366_raw.jpg',
     '/img/openart-image_PCaQMV9E_1743564713229_raw.jpg',
-    '/img/openart-image_Eks4R0Ju_1743566567866_raw.jpg',
+    '/img/openart-image_LRzqAkOm_1743566053108_raw.jpg',
     '/img/openart-image_Lqus96bT_1743563085861_raw.jpg',
+    '/img/openart-image_AqEtknSs_1743546381334_raw.jpg',
   ], []); // Empty dependency array means this runs only on initial mount
 
   // Memoize fallback paths as well
