@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Filter, Search, BookOpen } from 'lucide-react';
+import { Filter, Search, BookOpen, Users } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import LearningCard from '../components/LearningCard';
