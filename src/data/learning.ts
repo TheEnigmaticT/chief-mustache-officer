@@ -56,7 +56,7 @@ export const learningResources: LearningResource[] = [
     title: 'The 9 Week Guide to building a Million-Dollar Marketing Engine (with Founder Institute)',
     description: "I've built 100+ Million-Dollar Marketing Engines. Here's how.",
     type: 'resource',
-    imageUrl: '/img/fi_9weeks.png',
+    imageUrl: '/img/fi_9week.png',
     status: 'available',
     category: 'Resource Library',
   },
