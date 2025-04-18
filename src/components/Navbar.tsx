@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -22,7 +23,7 @@ const Navbar = () => {
     <header className="fixed w-full bg-white backdrop-blur-sm z-50 shadow-sm">
       <div className="container mx-auto px-4 md:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo - updated to show full logo */}
+          {/* Logo */}
           <Link to="/" className="flex items-center">
             <RobustImage 
               src={logoPath}
@@ -40,6 +41,9 @@ const Navbar = () => {
             </Link>
             <Link to="/cv" className="text-navy hover:text-mustache transition-colors font-medium">
               CV
+            </Link>
+            <Link to="/learn" className="text-navy hover:text-mustache transition-colors font-medium">
+              Learn
             </Link>
             <Link to="/publications" className="text-navy hover:text-mustache transition-colors font-medium">
               Content
@@ -78,6 +82,13 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               CV
+            </Link>
+            <Link 
+              to="/learn" 
+              className="py-3 text-navy hover:text-mustache transition-colors font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Learn
             </Link>
             <Link 
               to="/publications" 

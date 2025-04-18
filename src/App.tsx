@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import CV from "./pages/CV";
 import Publications from "./pages/Publications";
 import Projects from "./pages/Projects";
+import Learn from "./pages/Learn";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance outside of the component
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/cv" element={<CV />} />
             <Route path="/publications" element={<Publications />} />
             <Route path="/projects" element={<Projects />} />
+            <Route path="/learn" element={<Learn />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
