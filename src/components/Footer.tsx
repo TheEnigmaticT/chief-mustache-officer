@@ -26,7 +26,7 @@ const Footer = () => {
                 <Linkedin size={20} />
               </a>
               <a 
-                href="https://twitter.com"
+                href="https://twitter.com/trevorlongino"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-300 hover:text-mustache transition-colors"
@@ -35,7 +35,7 @@ const Footer = () => {
                 <Twitter size={20} />
               </a>
               <a 
-                href="https://youtube.com"
+                href="https://youtube.com/@launchtoday"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-300 hover:text-mustache transition-colors"
@@ -54,10 +54,10 @@ const Footer = () => {
                 <Link to="/" className="text-gray-300 hover:text-mustache transition-colors">Home</Link>
               </li>
               <li>
-                <Link to="/cv" className="text-gray-300 hover:text-mustache transition-colors">CV</Link>
+                <Link to="/cv" className="text-gray-300 hover:text-mustache transition-colors">About Me</Link>
               </li>
               <li>
-                <Link to="/publications" className="text-gray-300 hover:text-mustache transition-colors">Publications</Link>
+                <Link to="/publications" className="text-gray-300 hover:text-mustache transition-colors">Content</Link>
               </li>
               <li>
                 <Link to="/projects" className="text-gray-300 hover:text-mustache transition-colors">Projects</Link>
