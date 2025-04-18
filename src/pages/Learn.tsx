@@ -94,22 +94,6 @@ const Learn = () => {
           </div>
         </section>
 
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4 md:px-8 text-center">
-            <h2 className="text-3xl font-semibold mb-4">Need Custom Support?</h2>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              If you're looking for personalized guidance or custom training for your team,
-              let's discuss how I can help you achieve your goals.
-            </p>
-            <a 
-              href="mailto:trevor.longino@gmail.com" 
-              className="btn btn-primary btn-lg inline-flex items-center gap-2"
-            >
-              <Users className="w-5 h-5" />
-              Get in Touch
-            </a>
-          </div>
-        </section>
       </main>
       <Footer />
     </div>
