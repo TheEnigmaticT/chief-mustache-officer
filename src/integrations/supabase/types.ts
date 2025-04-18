@@ -53,6 +53,27 @@ export type Database = {
           },
         ]
       }
+      admin_settings: {
+        Row: {
+          created_at: string | null
+          key: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          key: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          key?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       cmo_ytvideos: {
         Row: {
           created_at: string
@@ -422,6 +443,10 @@ export type Database = {
       fetch_marketing_gaps: {
         Args: { p_project_id: string }
         Returns: Json[]
+      }
+      get_fallback_gemini_api_key: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_user_role: {
         Args: { user_id: string }
