@@ -196,7 +196,7 @@ const Index = () => {
             <div className="mb-12 text-center">
               <h2 className="text-3xl md:text-4xl font-semibold text-navy mb-4">Current Projects</h2>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Here are some of the exciting projects I'm currently working on
+                I know how to code. But I have AI do it for me instead. 
               </p>
             </div>
             
@@ -232,7 +232,7 @@ const Index = () => {
             <div className="mb-12 text-center">
               <h2 className="text-3xl md:text-4xl font-semibold text-navy mb-4">What People Say</h2>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Feedback from clients and collaborators I've worked with
+                A sampling of some feedback I've received recently.
               </p>
             </div>
             
