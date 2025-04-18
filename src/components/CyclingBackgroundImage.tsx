@@ -7,11 +7,13 @@ const CyclingBackgroundImage = () => {
 
   // Get all opart images
   const images = [
-    '/img/opart-image-1.jpg',
-    '/img/opart-image-2.jpg',
-    '/img/opart-image-3.jpg',
-    '/img/opart-image-4.jpg',
-    '/img/opart-image-5.jpg'
+    '/img/openart-ceaa5b2983ea4ebdafeeae73331dcfa7_raw.jpg',
+    '/img/openart-254428c2-b6df-46c1-a27a-23b87bf21d21.jpg',
+    '/img/openart-image_HZDb0jVj_1743562905366_raw.jpg',
+    '/img/openart-254428c2-b6df-46c1-a27a-23b87bf21d21.jpg',
+    '/img/openart-image_PCaQMV9E_1743564713229_raw.jpg',
+    '/img/openart-image_Eks4R0Ju_1743566567866_raw.jpg',
+    '/img/openart-image_Lqus96bT_1743563085861_raw.jpg',
   ];
 
   useEffect(() => {
