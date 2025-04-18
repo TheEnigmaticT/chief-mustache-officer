@@ -1,5 +1,4 @@
-
-import { GraduationCap, Users, BookOpen, ExternalLink } from 'lucide-react';
+import { GraduationCap, Users, BookOpen, ExternalLink, Podcast } from 'lucide-react'; // Added Podcast icon
 import type { LearningResource } from '../data/learning';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,8 +18,41 @@ const LearningCard = ({ resource }: LearningCardProps) => {
         return <Users className="w-6 h-6" />;
       case 'resource':
         return <BookOpen className="w-6 h-6" />;
+      case 'podcast': // Added case for podcast
+        return <Podcast className="w-6 h-6" />;
+      default: // Optional: handle unknown types
+        return null;
     }
   };
+
+  // Helper function to determine badge text based on status
+  const getStatusText = (status: LearningResource['status']): string => {
+    switch (status) {
+      case 'available':
+        return 'Available';
+      case 'coming-soon':
+        return 'Coming Soon';
+      case 'closed':
+        return 'Closed';
+      default:
+        return status; // Fallback to the raw status if unknown
+    }
+  };
+
+  // Helper function to determine badge variant based on status
+  const getStatusVariant = (status: LearningResource['status']): "default" | "secondary" | "destructive" | "outline" => {
+    switch (status) {
+      case 'available':
+        return 'default'; // Or maybe 'success' if you have that variant
+      case 'coming-soon':
+        return 'secondary';
+      case 'closed':
+        return 'destructive'; // Using 'destructive' for closed status
+      default:
+        return 'outline'; // Fallback variant
+    }
+  };
+
 
   return (
     <Card className="flex flex-col h-full">
@@ -39,8 +71,9 @@ const LearningCard = ({ resource }: LearningCardProps) => {
             <div className="text-mustache">
               {getIcon()}
             </div>
-            <Badge variant={resource.status === 'available' ? 'default' : 'secondary'}>
-              {resource.status === 'available' ? 'Available' : 'Coming Soon'}
+            {/* Use helper functions for variant and text */}
+            <Badge variant={getStatusVariant(resource.status)}>
+              {getStatusText(resource.status)}
             </Badge>
           </div>
           <Badge variant="outline">{resource.category}</Badge>
@@ -59,8 +92,12 @@ const LearningCard = ({ resource }: LearningCardProps) => {
             </a>
           </Button>
         ) : (
+           // Button logic when no direct URL is available
           <Button disabled={resource.status !== 'available'} className="w-full">
-            {resource.status === 'available' ? 'Learn More' : 'Coming Soon'}
+            {/* Update button text based on status */}
+            {resource.status === 'available' ? 'Learn More'
+              : resource.status === 'coming-soon' ? 'Coming Soon'
+              : 'Closed'}
           </Button>
         )}
       </CardFooter>
