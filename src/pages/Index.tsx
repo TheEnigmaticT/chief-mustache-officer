@@ -3,8 +3,10 @@ import Hero from '../components/Hero';
 import FeaturedContent from '../components/FeaturedContent';
 import TestimonialCard from '../components/TestimonialCard';
 import ProjectCard from '../components/ProjectCard';
+import LearningCard from '../components/LearningCard';
 import { testimonials } from '../data/testimonials';
 import { featuredProjects } from '../data/projects';
+import { learningResources } from '../data/learning';
 import { loadFeaturedContent } from '../utils/rssFeeds';
 import { BlogPost, Video } from '../utils/rssFeeds';
 import Navbar from '../components/Navbar';
@@ -12,9 +14,8 @@ import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap, Users, BookOpen } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 
-// Mock data to use when feeds fail to load
 const mockBlogPosts: BlogPost[] = [
   {
     id: '1',
@@ -87,6 +88,7 @@ const Index = () => {
   const [featuredBlogPosts, setFeaturedBlogPosts] = useState<BlogPost[]>([]);
   const [featuredVideos, setFeaturedVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [featuredLearningResources, setFeaturedLearningResources] = useState(learningResources.slice(0, 3));
   const { toast } = useToast();
 
   useEffect(() => {
@@ -94,7 +96,7 @@ const Index = () => {
       setIsLoading(true);
       try {
         const content = await loadFeaturedContent();
-        console.log('Loaded content:', content); // Log the response
+        console.log('Loaded content:', content);
 
         if (content.featuredBlogPosts && content.featuredBlogPosts.length > 0) {
           setFeaturedBlogPosts(content.featuredBlogPosts);
@@ -192,7 +194,7 @@ const Index = () => {
         )}
 
         {/* Learn from Me Section */}
-        <section className="section bg-white">
+        <section className="section bg-gray-50">
           <div className="container mx-auto">
             <div className="mb-12 text-center">
               <h2 className="text-3xl md:text-4xl font-semibold text-navy mb-4">Learn from Me</h2>
@@ -201,33 +203,19 @@ const Index = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-              <div className="flex flex-col items-center text-center p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <GraduationCap className="w-12 h-12 text-mustache mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Marketing Academy</h3>
-                <p className="text-gray-600">Comprehensive marketing courses for founders and startups</p>
-              </div>
-              
-              <div className="flex flex-col items-center text-center p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <Users className="w-12 h-12 text-mustache mb-4" />
-                <h3 className="text-xl font-semibold mb-2">1-on-1 Mentoring</h3>
-                <p className="text-gray-600">Personalized guidance for your specific business challenges</p>
-              </div>
-              
-              <div className="flex flex-col items-center text-center p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <BookOpen className="w-12 h-12 text-mustache mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Resource Library</h3>
-                <p className="text-gray-600">Actionable templates, guides, and frameworks</p>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {featuredLearningResources.map(resource => (
+                <LearningCard key={resource.id} resource={resource} />
+              ))}
             </div>
 
             <div className="text-center">
               <Link 
-                to="/publications" 
+                to="/learn" 
                 className="btn btn-primary btn-lg inline-flex items-center gap-2"
               >
                 <GraduationCap className="w-5 h-5" />
-                Explore Resources
+                View All Resources
               </Link>
             </div>
           </div>

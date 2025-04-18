@@ -1,9 +1,10 @@
 
-import { GraduationCap, Users, BookOpen } from 'lucide-react';
+import { GraduationCap, Users, BookOpen, ExternalLink } from 'lucide-react';
 import type { LearningResource } from '../data/learning';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import RobustImage from './RobustImage';
 
 interface LearningCardProps {
   resource: LearningResource;
@@ -23,6 +24,15 @@ const LearningCard = ({ resource }: LearningCardProps) => {
 
   return (
     <Card className="flex flex-col h-full">
+      {resource.imageUrl && (
+        <div className="aspect-video overflow-hidden bg-gray-100">
+          <RobustImage
+            src={resource.imageUrl}
+            alt={resource.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
@@ -43,7 +53,8 @@ const LearningCard = ({ resource }: LearningCardProps) => {
       <CardFooter>
         {resource.url ? (
           <Button asChild className="w-full">
-            <a href={resource.url} target="_blank" rel="noopener noreferrer">
+            <a href={resource.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+              <ExternalLink size={16} />
               Access Resource
             </a>
           </Button>
