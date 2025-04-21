@@ -3,6 +3,7 @@
 import { blogPosts as mockBlogPosts, videos as mockVideos } from '../data/publications';
 import { extractYouTubeId, debugLog } from './imageUtils';
 import { supabase } from "@/integrations/supabase/client";
+import logger from './logger';
 
 // --- Interfaces ---
 export interface BlogPost {
@@ -46,16 +47,41 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
     console.log('🚀 Blog Posts Fetch Attempt (Parsing Feed Images)');
     console.log('Attempting to fetch blog feed URL:', PROXIED_BLOG_FEED_URL);
     try {
+      logger.log('Starting blog feed fetch from: ' + BLOG_FEED_URL);
       const response = await fetch(PROXIED_BLOG_FEED_URL);
       console.log('Blog Fetch Response:', { status: response.status, ok: response.ok });
-      if (!response.ok) throw new Error(`Blog Feed Fetch Failed: ${response.status}`);
+      logger.log(`Blog feed response status: ${response.status}, ok: ${response.ok}`);
+      
+      if (!response.ok) {
+        const errorMsg = `Blog Feed Fetch Failed: ${response.status}`;
+        logger.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+      
       const xmlText = await response.text();
+      logger.log(`Blog feed XML received, length: ${xmlText.length} characters`);
+      
+      if (xmlText.length < 100) {
+        logger.error('Blog feed returned suspiciously short content: ' + xmlText);
+        return mockBlogPosts; // Likely an error page or empty response
+      }
+      
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
       const errorNode = xmlDoc.querySelector('parsererror');
-      if (errorNode) throw new Error('Blog Feed Parse Error');
+      
+      if (errorNode) {
+        logger.error('XML Parse Error: ' + errorNode.textContent);
+        throw new Error('Blog Feed Parse Error');
+      }
+      
       const items = xmlDoc.querySelectorAll('item');
-      if (items.length === 0) return mockBlogPosts; // Use mock if no items
+      logger.log(`Found ${items.length} blog items in feed`);
+      
+      if (items.length === 0) {
+        logger.warn('No blog items found in feed, using mock data');
+        return mockBlogPosts; // Use mock if no items
+      }
 
       const posts = Array.from(items).map((item, index) => {
           const title = item.querySelector('title')?.textContent || `Post ${index + 1}`;
@@ -80,9 +106,11 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
 
         return { id: guid, title, excerpt, url: link, date: new Date(pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), imageUrl: imageUrl };
       });
-    //   console.log("Finished processing blog items."); // Optional: reduce log noise
+      
+      logger.log(`Successfully processed ${posts.length} blog posts from feed`);
       return posts;
     } catch (error: any) {
+      logger.error(`Failed during fetchBlogPosts. Error: ${error.message || 'Unknown error'}`);
       console.error('Failed during fetchBlogPosts. Error:', error);
       return mockBlogPosts; // Fallback
     }
@@ -94,9 +122,12 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
 export const fetchYouTubeVideos = async (): Promise<Video[]> => {
   try {
     console.log('Fetching videos from Supabase Edge Function...');
+    logger.log('Starting YouTube video fetch from Supabase Edge Function');
+    
     const { data: response, error } = await supabase.functions.invoke('fetch-youtube');
     
     if (error) {
+      logger.error(`Supabase function error: ${error.message || JSON.stringify(error)}`);
       console.error('Error fetching videos:', error);
       // Make sure to add embedUrl to each mock video
       return mockVideos.map(v => ({
@@ -106,6 +137,7 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
     }
 
     if (!Array.isArray(response)) {
+      logger.error(`Invalid response format: ${JSON.stringify(response)}`);
       console.error('Invalid response format:', response);
       // Make sure to add embedUrl to each mock video
       return mockVideos.map(v => ({
@@ -114,8 +146,10 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
       }));
     }
 
+    logger.log(`Successfully fetched ${response.length} videos from Supabase`);
     return response;
-  } catch (error) {
+  } catch (error: any) {
+    logger.error(`Failed to fetch YouTube videos: ${error.message || 'Unknown error'}`);
     console.error('Failed to fetch YouTube videos:', error);
     // Make sure to add embedUrl to each mock video
     return mockVideos.map(v => ({
@@ -125,30 +159,35 @@ export const fetchYouTubeVideos = async (): Promise<Video[]> => {
   }
 };
 
-// --- loadFeaturedContent (Adjust logging for clarity) ---
+// --- loadFeaturedContent function: enhanced with better logging ---
 export const loadFeaturedContent = async () => {
+  logger.log('>>> Starting loadFeaturedContent...');
   console.log('>>> Starting loadFeaturedContent...');
   let blogSource = 'Mock'; // Default to mock
   let videoSource = 'Mock'; // Default to mock
 
   try {
+    logger.log('>>> Calling Promise.allSettled for blog posts and videos...');
     console.log('>>> Calling Promise.allSettled...');
     const results = await Promise.allSettled([ fetchBlogPosts(), fetchYouTubeVideos() ]);
     console.log('>>> Promise.allSettled finished.'); // Simplified log
+    logger.log('>>> Promise.allSettled finished.');
 
     let blogPosts: BlogPost[];
     if (results[0].status === 'fulfilled') {
-      // console.log('>>> Blog posts promise fulfilled.'); // Redundant with below
       blogPosts = results[0].value;
       // Check if mock data was returned by fetchBlogPosts (e.g., if feed had no items)
       if (blogPosts === mockBlogPosts) { // Check by reference IF fetch returns mock on empty
+           logger.log('>>> Blog posts fetch returned mock data (or empty feed).');
            console.log('>>> Blog posts fetch returned mock data (or empty feed).');
            blogSource = 'Mock (or empty)';
       } else {
+           logger.log('>>> Blog posts fetch succeeded.');
            console.log('>>> Blog posts fetch succeeded.');
            blogSource = 'Fetched';
       }
     } else {
+      logger.error(`>>> Blog posts fetch failed: ${results[0].reason}`);
       console.error('>>> Blog posts fetch failed:', results[0].reason);
       blogPosts = mockBlogPosts; // Use mock data on failure
       blogSource = 'Mock (Fetch Failed)';
@@ -156,40 +195,47 @@ export const loadFeaturedContent = async () => {
 
     let videos: Video[];
     if (results[1].status === 'fulfilled') {
-      // console.log('>>> YouTube videos promise fulfilled.'); // Redundant with below
       videos = results[1].value;
       // Check if mock data was returned by fetchYouTubeVideos (due to internal error)
        if (videos === mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : '' }))) { // Check if it's the mapped mock data
+           logger.log('>>> YouTube videos fetch failed internally, using mock data.');
            console.log('>>> YouTube videos fetch failed internally, using mock data.');
            videoSource = 'Mock (Fetch Failed)';
        } else {
+          logger.log('>>> YouTube videos fetch succeeded.');
           console.log('>>> YouTube videos fetch succeeded.');
           videoSource = 'Fetched';
        }
     } else {
       // This case might not be hit if fetchYouTubeVideos always catches and returns mocks
+      logger.error(`>>> YouTube videos fetch promise rejected: ${results[1].reason}`);
       console.error('>>> YouTube videos fetch promise rejected:', results[1].reason);
       videos = mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : '' })); // Use mock data
       videoSource = 'Mock (Promise Rejected)';
     }
 
+    logger.log(`>>> Final Loaded Counts - Blog Posts: ${blogPosts.length}, Videos: ${videos.length}`);
+    logger.log(`>>> Blog post source: ${blogSource}`);
+    logger.log(`>>> Video source: ${videoSource}`);
     console.log(`>>> Final Loaded Counts - Blog Posts: ${blogPosts.length}, Videos: ${videos.length}`);
     console.log(`>>> Blog post source: ${blogSource}`);
     console.log(`>>> Video source: ${videoSource}`); // More accurate source logging
     console.log('>>> loadFeaturedContent returning data.');
 
     return {
-      featuredBlogPosts: blogPosts.slice(0, 4), // Change from 3 to 4
+      featuredBlogPosts: blogPosts.slice(0, 4),
       featuredVideos: videos.slice(0, 6),
       allBlogPosts: blogPosts,
       allVideos: videos
     };
 
-  } catch (error) {
-    console.error('>>> Critical error in loadFeaturedContent:', error);
+  } catch (error: any) {
+    const errorMsg = `>>> Critical error in loadFeaturedContent: ${error.message || 'Unknown error'}`;
+    logger.error(errorMsg);
+    console.error(errorMsg);
     const mockVidsWithEmbed = mockVideos.map(v => ({ ...v, embedUrl: v.videoId ? `https://www.youtube.com/embed/${v.videoId}` : '' }));
     return {
-       featuredBlogPosts: mockBlogPosts.slice(0, 4), // Change from 3 to 4
+       featuredBlogPosts: mockBlogPosts.slice(0, 4),
        featuredVideos: mockVidsWithEmbed.slice(0, 6),
        allBlogPosts: mockBlogPosts,
        allVideos: mockVidsWithEmbed
