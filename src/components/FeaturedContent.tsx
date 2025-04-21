@@ -56,17 +56,17 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
             My latest blog posts and videos on marketing, growth, and startup success
           </p>
-          <!--
-          <Button 
-            variant="outline"
-            size="sm"
-            onClick={logger.downloadLogs}
-            className="flex items-center gap-2"
-          >
-            <Download size={16} />
-            Download Logs
-          </Button>
-            --!>
+         {/* --- This block is now correctly commented out ---
+         <Button
+           variant="outline"
+           size="sm"
+           onClick={logger.downloadLogs}
+           className="flex items-center gap-2"
+         >
+           <Download size={16} />
+           Download Logs
+         </Button>
+         */}
         </div>
 
         <div className="grid md:grid-cols-2 gap-12">
