@@ -56,7 +56,7 @@ const FeaturedContent = ({ featuredPosts, featuredVideos }: FeaturedContentProps
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
             My latest blog posts and videos on marketing, growth, and startup success
           </p>
-         {/* --- This block is now correctly commented out ---
+         {/*
          <Button
            variant="outline"
            size="sm"
