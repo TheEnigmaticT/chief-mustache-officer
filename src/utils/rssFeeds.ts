@@ -65,7 +65,8 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
         logger.error('Blog feed returned suspiciously short content: ' + xmlText);
         return mockBlogPosts; // Likely an error page or empty response
       }
-      
+
+      logger.log('Raw XML Text:', xmlText); // Add this line
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
       const errorNode = xmlDoc.querySelector('parsererror');
